@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fa">
+	
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>قالب ریسپانسیو فروشگاهی pillomart :: دریافت شده از وب روبیک</title>
+    <link rel="icon" href="img/favicon.png">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap4-rtl.min.css">
+    <!-- animate CSS -->
+    <link rel="stylesheet" href="css/animate.css">
+    <!-- owl carousel CSS -->
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <!-- font awesome CSS -->
+    <link rel="stylesheet" href="css/all.css">
+    <!-- flaticon CSS -->
+    <link rel="stylesheet" href="css/flaticon.css">
+    <link rel="stylesheet" href="css/themify-icons.css">
+    <!-- font awesome CSS -->
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <!-- swiper CSS -->
+    <link rel="stylesheet" href="css/slick.css">
+    <!-- style CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body class="rtl">
+	<div class="site-wrap">
+		<div class="site-navbar py-2">
+			
+			<!-- Start Navbar Section -->
+			<div class="container">
+				<div class="d-flex align-items-center justify-content-between">
+					<div class="logo">
+						<div class="site-logo">
+							<a href="index.html" class="js-logo-clone">قالب Pharma</a>
+						</div>
+					</div>
+					<div class="main-nav d-none d-lg-block">
+						<nav class="site-navigation text-right text-md-center" role="navigation">
+							<ul class="site-menu js-clone-nav d-none d-lg-block">
+
+								<!-- ------------------------ -->
+								<li><a href="http://127.0.0.1:8000/register/home/">صفحه نخست</a></li>
+								<li><a href="http://127.0.0.1:8000/register/login/">ورود</a></li>
+								<li><a href="http://127.0.0.1:8000/register/register/">ثبت نام</a></li>
+								<li><a href="http://127.0.0.1:8000/register/vendor/">ثبت نام فروشگاه</a></li>
+								<a href="#" id="user-panel-link">ورود به پنل کاربری</a>
+								<li><a href="about.html">درباره ما</a></li>
+								<li><a href="contact.html">تماس با ما</a></li>
+
+								<li><a href="#" onclick="logout()">خروج</a></li>
+
+								<!-- ------------------------ -->
+
+
+							</ul>
+						</nav>
+					</div>
+					<div class="icons">
+						<a href="#" class="icons-btn d-inline-block js-search-open"><span class="icon-search"></span></a>
+						<a href="cart.html" class="icons-btn d-inline-block bag">
+							<span class="icon-shopping-bag"></span>
+							<span class="number">2</span>
+						</a>
+						<a href="#" class="site-menu-toggle js-menu-toggle ml-3 d-inline-block d-lg-none"><span class="icon-menu"></span></a>
+					</div>
+				</div>
+			</div>
+			<!-- End Navbar Section -->
+		</div>
+
+
+		<!-- Start Breadcrumb Section -->
+		<div class="bg-light py-3">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12 mb-0"><a href="index.html">صفحه نخست</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">محصولات</strong></div>
+				</div>
+			</div>
+		</div>
+		<!-- End Breadcrumb Section -->
+
+		<!-- Start Footer Section -->
+		<footer class="site-footer">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+						<div class="block-7">
+							<h3 class="footer-heading mb-4">درباره ما</h3>
+							<p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
+						</div>
+					</div>
+
+					<div class="col-md-6 col-lg-3">
+						<div class="block-5 mb-5">
+							<h3 class="footer-heading mb-4">اطلاعات تماس</h3>
+							<ul class="list-unstyled">
+								<li class="address">شیراز خیابان جام جم</li>
+								<li class="phone"><a href="tel://02112345678">02112345678</a></li>
+								<li class="email">email@website.com</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="row pt-5 mt-5 text-center">
+					<div class="col-md-12">
+						<p>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							Copyright &copy;
+							<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank"class="text-primary">Colorlib</a>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							<br>
+							فارسی و راست چین شده با <i class="icon-heart" aria-hidden="true"></i> توسط <a href="http://webrubik.com" target="_blank" class="text-primary">Webrubik.com</a>
+						</p>
+					</div>
+
+				</div>
+			</div>
+		</footer>
+		<!-- End Footer Section -->
+	</div>
+
+	<!-- Scripts -->
+	<script>
+		const productContainer = document.getElementById("product-container");
+	
+		fetch("http://localhost:8000/api/products/?page=1")
+			.then(res => res.json())
+			.then(data => {
+				data.results.forEach(product => {
+					const hasDiscount = product.discount !== null;
+					const originalPrice = product.price + " هزار تومان";
+					const finalPrice = product.final_price + " هزار تومان";
+					const imgSrc = "images/product_01.png"; // عکس تستی ثابت فعلاً
+	
+					const productHTML = `
+						<div class="col-sm-6 col-lg-4 text-center item mb-4">
+							${hasDiscount ? '<span class="tag">فروش ویژه</span>' : ''}
+							<a href="shop-single.html"> <img src="${imgSrc}" alt="Image"></a>
+							<h3 class="text-dark"><a href="shop-single.html">${product.name}</a></h3>
+							<p class="price">
+								${hasDiscount ? `<del>${originalPrice}</del> &mdash; ${finalPrice}` : finalPrice}
+							</p>
+						</div>
+					`;
+	
+					productContainer.innerHTML += productHTML;
+				});
+			})
+			.catch(error => {
+				console.error("خطا در دریافت محصولات:", error);
+			});
+	</script>
+
+	<script>
+		function logout() {
+		  localStorage.removeItem("access_token");
+		  localStorage.removeItem("refresh_token");
+		  window.location.href = "/register/home/";
+		}
+	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const panelLink = document.getElementById('user-panel-link');
+			if (panelLink) {
+				panelLink.addEventListener('click', function(event) {
+					event.preventDefault();
+					const accessToken = localStorage.getItem("access_token");
+					console.log("توکن دسترسی:", accessToken);	
+					if (!accessToken) {
+						alert("لطفاً ابتدا وارد حساب کاربری شوید.");
+						window.location.href = "http://127.0.0.1:8000/register/login/";
+						return;
+					}
+					fetch("/vendors/vendor_profile/", {
+						method: 'GET',
+						headers: {
+							"Authorization": `Bearer ${accessToken}`,
+							"Content-Type": "application/json"
+						}
+					})
+					.then(response => {
+					    console.log("وضعیت پاسخ:", response.status);
+					    const contentType = response.headers.get("content-type");
+					    if (!contentType || !contentType.includes("application/json")) {
+					        throw new Error("فرمت پاسخ نامعتبر است (انتظار JSON داشتیم)");
+					    }
+					    return response.json().then(data => {
+					        if (!response.ok) {
+					            throw new Error(data.detail || data.error || "خطا در پاسخ سرور");
+					        }
+					        return data;
+					    });
+					})
+					.then(data => {
+					    console.log("داده دریافتی:", data);
+					    if (data.is_vendor === true) {
+					        window.location.href = "http://127.0.0.1:8000/register/vendor_panel/";
+					    } else {
+					        window.location.href = "http://127.0.0.1:8000/register/user_panel/";
+					    }
+					})
+					.catch(error => {
+						console.error("خطا:", error);
+						alert("خطا در بررسی وضعیت کاربر: " + error.message);
+					});
+				});
+			} else {
+				console.error("لینک پنل کاربری یافت نشد!");
+			}
+		});
+	</script>
+
+</body>
+</html>

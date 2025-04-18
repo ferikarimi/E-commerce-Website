@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>پنل مشتری</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .container {
+      max-width: 500px;
+      margin: 100px auto;
+      text-align: center;
+    }
+    .btn-main {
+      font-size: 1.25rem;
+      padding: 15px 30px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container">
+  <h2 class="mb-4">به پنل مشتری خوش آمدید</h2>
+  <p>لطفاً یکی از گزینه‌های زیر را انتخاب کنید:</p>
+  
+  <!-- Button to redirect to the User Info page -->
+  <a href="http://127.0.0.1:8000/register/profile/" class="btn btn-primary btn-main mb-3">ویرایش اطلاعات کاربری </a>
+
+  <!-- Button to redirect to the Reviews page -->
+  <a href="http://127.0.0.1:8000/register/user_addresses/" class="btn btn-primary btn-main mb-3">آدرس ها</a>
+
+  <a href="http://127.0.0.1:8000/register/user_reviews/" class="btn btn-primary btn-main mb-3">مشاهده نظرات ارسال شده</a>
+
+
+
+  <!-- Button to redirect to the Order History page -->
+  <a href="order_history.html" class="btn btn-primary btn-main mb-3">مشاهده تاریخچه سفارشات</a>
+
+  <!-- Button to redirect to the Product Rating page -->
+  <a href="product_rating.html" class="btn btn-primary btn-main">ثبت امتیاز به محصول</a>
+
+  <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="form-container">
+  <h2 class="mb-4 text-center">Register</h2>
+  
+  <div id="error-message" class="alert alert-danger d-none"></div>
+  
+  <form id="register-form">
+    <div class="mb-3">
+      <label class="form-label">First Name</label>
+      <input type="text" class="form-control" name="first_name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Last Name</label>
+      <input type="text" class="form-control" name="last_name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input type="text" class="form-control" name="username" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Phone Number</label>
+      <input type="text" class="form-control" name="phone_number" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Birth Date</label>
+      <input type="date" class="form-control" name="birth_date">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control" name="password" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" name="password1" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Register</button>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('register-form');
+  const errorBox = document.getElementById('error-message');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
+
+    fetch('/users/register/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(json => ({status: response.status, body: json})))
+    .then(({status, body}) => {
+      if (status === 201) {
+        window.location.href = '/register/login/';
+      } else {
+        let errorText = '';
+        if (body.error) {
+          for (const key in body.error) {
+            errorText += `${key}: ${body.error[key]}<br>`;
+          }
+        }
+        errorBox.innerHTML = errorText;
+        errorBox.classList.remove('d-none');
+      }
+    })
+    .catch(error => {
+      errorBox.innerHTML = 'Something went wrong.';
+      errorBox.classList.remove('d-none');
+    });
+  });
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+</body>
+</html>

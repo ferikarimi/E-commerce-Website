@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>آدرس‌ها</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light" >
+
+<div class="form-container">
+  <h2 class="mb-4 text-center">آدرس‌های شما</h2>
+
+  <div id="message-box" class="alert d-none"></div>
+
+  <!-- فرم اضافه کردن آدرس -->
+  <form id="address-form" class="mb-4">
+    <div class="mb-3">
+      <label class="form-label">شهر</label>
+      <input type="text" class="form-control" name="city" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">آدرس</label>
+      <textarea class="form-control" name="address" rows="2" required></textarea>
+    </div>
+
+    <button type="submit" id="add-btn" class="btn btn-success w-100">افزودن آدرس</button>
+
+    <button type="button" id="update-btn" class="btn btn-warning w-100 d-none mt-2">ذخیره تغییرات</button>
+
+    <a href="http://127.0.0.1:8000/register/user_panel/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
+
+</form>
+
+  </form>
+
+  <!-- لیست آدرس‌ها -->
+  <ul id="address-list" class="list-group">
+    <!-- آدرس‌ها در اینجا نمایش داده می‌شوند -->
+  </ul>
+</div>
+
+<script>
+  // مدیریت آدرس‌ها
+  const addressForm = document.getElementById('address-form');
+  const addressList = document.getElementById('address-list');
+  const messageBox = document.getElementById('message-box');
+  const addBtn = document.getElementById('add-btn');
+  const updateBtn = document.getElementById('update-btn');
+
+
+  // بارگذاری آدرس‌ها از پروفایل کاربر
+  fetch('/customer/address/all', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    }
+  })
+  .then(response => response.json().then(json => ({status: response.status, body: json})))
+  .then(({status, body}) => {
+    if (status === 200) {
+      // نمایش آدرس‌ها
+      displayAddresses(body);
+    } else {
+      showMessage(body.error, 'danger');
+    }
+  });
+
+  // نمایش آدرس‌ها
+  function displayAddresses(addresses) {
+    addressList.innerHTML = '';
+    addresses.forEach(addr => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+      li.innerHTML = `
+        <div>
+          <strong>${addr.city}</strong><br>${addr.address}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteAddress(${addr.id})">Delete</button>
+        <button class="btn btn-primary btn-sm me-2" onclick="editAddress(${addr.id}, '${addr.city}', '${addr.address}')">Edit</button>
+
+      `;
+      addressList.appendChild(li);
+    });
+  }
+
+  // اضافه کردن آدرس
+  addressForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(addressForm);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
+
+    fetch('/customer/address/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json().then(json => ({ status: res.status, body: json })))
+    .then(({ status, body }) => {
+      if (status === 201) {
+        showMessage('Address added successfully!', 'success');
+        addressForm.reset();
+        fetchAddresses(); // بارگذاری دوباره آدرس‌ها
+      } else {
+        let errors = '';
+        for (const key in body) errors += `${key}: ${body[key]}<br>`;
+        showMessage(errors, 'danger');
+      }
+    });
+  });
+
+  // حذف آدرس
+  function deleteAddress(id) {
+    if (confirm("Are you sure you want to delete this address?")) {
+      fetch(`/customer/address/delete/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showMessage('Address deleted successfully!', 'success');
+          fetchAddresses(); // بارگذاری دوباره آدرس‌ها
+        } else {
+          showMessage('Failed to delete address.', 'danger');
+        }
+      });
+    }
+  }
+
+  // ادیت کرن ادرس ها 
+  function editAddress(id, city, address) {
+    const cityInput = addressForm.querySelector('input[name="city"]');
+    const addressInput = addressForm.querySelector('textarea[name="address"]');
+    cityInput.value = city;
+    addressInput.value = address;
+    // تغییر دکمه‌ها
+    addBtn.classList.add('d-none');
+    updateBtn.classList.remove('d-none');
+    // وقتی دکمه "ذخیره تغییرات" کلیک بشه
+    updateBtn.onclick = function () {
+      const data = {
+        id: id,
+        city: cityInput.value,
+        address: addressInput.value
+      };
+      fetch('/customer/address/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ addresses: [data] })
+      })
+      .then(res => res.json())
+      .then(response => {
+        showMessage("تغییرات با موفقیت ذخیره شد!", "success");
+        addressForm.reset();
+        fetchAddresses();
+        // برگشت به حالت اولیه (اضافه کردن آدرس)
+        addBtn.classList.remove('d-none');
+        updateBtn.classList.add('d-none');
+      });
+    };
+}
+
+
+  // بارگذاری آدرس‌ها
+  function fetchAddresses() {
+    fetch('/customer/address/all', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      displayAddresses(data);
+    });
+  }
+
+  // نمایش پیام‌ها
+  function showMessage(message, type) {
+    messageBox.className = 'alert alert-' + type;
+    messageBox.innerHTML = message;
+    messageBox.classList.remove('d-none');
+  }
+
+  // گرفتن کوکی
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ثبت‌نام فروشنده</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 550px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="form-container">
+  <h2 class="mb-4 text-center">ثبت‌نام فروشنده</h2>
+
+  <div id="error-message" class="alert alert-danger d-none"></div>
+  <div id="success-message" class="alert alert-success d-none"></div>
+
+  <form id="vendor-form">
+    <div class="mb-3">
+      <label class="form-label">کد فروشنده (vendor code)</label>
+      <input type="number" class="form-control" name="vendor_code" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">نام فروشگاه</label>
+      <input type="text" class="form-control" name="shop_name" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">آدرس فروشگاه</label>
+      <input type="text" class="form-control" name="shop_address" required>
+    </div>
+    <button type="submit" class="btn btn-success w-100">ثبت فروشگاه</button>
+  </form>
+
+  <button class="btn btn-secondary w-100 mt-3" onclick="window.history.back()">بازگشت</button>
+</div>
+
+<script>
+  const form = document.getElementById('vendor-form');
+  const errorBox = document.getElementById('error-message');
+  const successBox = document.getElementById('success-message');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
+
+    fetch('/vendors/register_vendor_page/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(json => ({status: response.status, body: json})))
+    .then(({status, body}) => {
+      if (status === 201) {
+        successBox.innerHTML = body.message || 'فروشگاه با موفقیت ثبت شد.';
+        successBox.classList.remove('d-none');
+        errorBox.classList.add('d-none');
+        form.reset();
+        window.location.href = 'http://127.0.0.1:8000/register/vendor_panel/'
+      } else {
+        let errorText = '';
+        if (body.error) {
+          errorText = body.error;
+        } else {
+          const errorList = Object.values(body).flat().join('<br>');
+          errorText = errorList || 'مشکلی پیش آمده است.';
+        }
+        errorBox.innerHTML = errorText;
+        errorBox.classList.remove('d-none');
+        successBox.classList.add('d-none');
+      }
+    })
+    .catch(error => {
+      errorBox.innerHTML = 'خطا در ارتباط با سرور.';
+      errorBox.classList.remove('d-none');
+      successBox.classList.add('d-none');
+    });
+  });
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+</body>
+</html>

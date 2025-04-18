@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ویرایش فروشگاه</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="form-container">
+  <h2 class="mb-4 text-center">ویرایش اطلاعات فروشگاه</h2>
+
+  <div id="message-box" class="alert d-none"></div>
+
+  <form id="shop-form">
+    <div class="mb-3">
+      <label class="form-label">نام فروشگاه</label>
+      <input type="text" class="form-control" name="name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">آدرس فروشگاه</label>
+      <input type="text" class="form-control" name="address">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">توضیحات</label>
+      <textarea class="form-control" name="description" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">شماره تماس</label>
+      <input type="text" class="form-control" name="phone">
+    </div>
+    <button type="submit" class="btn btn-success w-100">بروزرسانی فروشگاه</button>
+    <a href="http://127.0.0.1:8000/register/vendor_profile/" class="btn btn-secondary w-100 mt-2">بازگشت به خانه</a>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('shop-form');
+  const messageBox = document.getElementById('message-box');
+
+  // دریافت اطلاعات فروشگاه
+  fetch('/vendors/vendor_shop/', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    }
+  })
+  .then(response => response.json().then(json => ({status: response.status, body: json})))
+  .then(({status, body}) => {
+    if (status === 200) {
+      for (const key in body) {
+        const field = form.elements.namedItem(key);
+        if (field) field.value = body[key];
+      }
+    } else {
+      showMessage(body.error, 'danger');
+    }
+  })
+  .catch(error => {
+    showMessage('خطایی رخ داد.', 'danger');
+  });
+
+  // بروزرسانی فروشگاه
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
+
+    fetch('/vendors/vendor_shop/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(json => ({status: response.status, body: json})))
+    .then(({status, body}) => {
+      if (status === 200) {
+        showMessage(body.message, 'success');
+      } else {
+        let errorText = '';
+        for (const key in body) {
+          errorText += `${key}: ${body[key]}<br>`;
+        }
+        showMessage(errorText, 'danger');
+      }
+    })
+    .catch(error => {
+      showMessage('خطایی در ذخیره اطلاعات رخ داد.', 'danger');
+    });
+  });
+
+  // نمایش پیام
+  function showMessage(message, type) {
+    messageBox.className = 'alert alert-' + type;
+    messageBox.innerHTML = message;
+    messageBox.classList.remove('d-none');
+  }
+
+  // دریافت CSRF Token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+
+</body>
+</html>

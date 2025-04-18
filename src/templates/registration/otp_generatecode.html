@@ -1,0 +1,65 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<h1>Users Login</h1>
+{% if user.is_authticated %}
+    <h1>welcome {{user.username}}</h1>
+{% else %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Login">
+    </form>
+{% endif %}
+<h3><a href="#" onclick="history.go(-1)">Back</a></h3>
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Login form -->
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data">
+            <h1 style="text-align: center;"><span style="color: green;">BlogWebsite Test</span></h1>
+
+            {% csrf_token %}  <!-- CSRF token for security -->
+
+            <!-- Login heading -->
+            <h3>taking phone number</h3>
+            <hr>
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- phone number input field -->
+            <div class="form-group">
+                <label for="exampleInputEmail1">otp input</label>
+                <input type="text" class="form-control" name="otp_token" id="exampleInputOTP"
+                    placeholder="Enter OTP Code" required>
+            </div>
+
+            <!-- Link to registration page -->
+            <p>Don't have an account <a href="/register/">Register</a> </p>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
