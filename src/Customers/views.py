@@ -1,52 +1,59 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import AddressSerializer
 from Customers.models import Addresses
 
 
-@api_view(['GET'])
-def get_addresses(request):
-    addresses = request.user.addresses.all()
-    serializer = AddressSerializer(addresses , many=True)
-    return Response(serializer.data)
+
+class GetUserAddresses (APIView):
+    def get (self , request):
+        addresses = request.user.addresses.all()
+        serializer = AddressSerializer(addresses , many=True)
+        return Response (serializer.data)
 
 
-@api_view(['POST'])
-def create_address(request):
+class CreateAddress(APIView):
+    def post (self , request):
+        city = request.data.get('city')
+        address = request.data.get('address')
 
-    serializer = AddressSerializer(data=request.data , context={'request':request})
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data , status=status.HTTP_201_CREATED)
-    return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
+        if city and address :
+            new_address = Addresses.objects.create(
+                user = request.user ,
+                city = city ,
+                address = address
+            )
+            return Response(AddressSerializer(new_address).data , status=201)
+        else :
+            return Response ({'error':'city and address are required!'} , status=400)
 
 
-@api_view(['PUT'])
-def update_addresses(request):
-
-    addresses_data = request.data.get('addresses',[])
-    
-    for addr in addresses_data :
-        try:
-            address = request.user.addresses.get(id=addr.get('id'))
-            serializer = AddressSerializer(address , data=addr)
-            if serializer.is_valid():
-                serializer.save()
-            else :
-                return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
-        except Addresses.DoesNotExist :
-            return Response({'error':'address not found'}, status=status.HTTP_404_NOT_FOUND)
+class UpdateAddress(APIView):
+    def put (self , request):
+        address_data = request.data.get('addresses',[])
+        for addr in address_data :
+            try :
+                address = request.user.addresses.get(id=addr.get('id'))
+                serializer = AddressSerializer (address , data=addr)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                else :
+                    return Response(serializer.errors , status=400)
+            except Addresses.DoesNotExist :
+                return Response({'error':'address not found'}, status=404)
         
-    return Response(AddressSerializer(request.user.addresses.all() , many=True).data)
+        return Response(AddressSerializer(request.user.addresses.all() , many=True).data)
 
 
-@api_view(['DELETE'])
-def delete_addresses(request):
-    try:
-        address = request.user.addresses.get(id=request.data.get('id'))
-        address.delete()
-        return Response({'message':'address deleted !'})
-    except Addresses.DoesNotExist :
-        return Response({'error':'address not found'}, status=status.HTTP_404_NOT_FOUND)
+class DeleteAddress(APIView):
+    def delete (self , request ,id):
+        try :
+            address = request.user.addresses.get(id=id)
+            address.delete()
+            return Response({'success':True , 'message':'address deleted !'})
+        except Addresses.DoesNotExist :
+            return Response({'error':'address not found'}, status=404)      

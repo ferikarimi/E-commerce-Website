@@ -1,58 +1,61 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import CustomerRegisterSerializer , LoginSerializer , VendorRegisterSerializer , UserProfileSerializer
-from django.contrib.auth import login
+from django.shortcuts import render , redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def user_panel(request):
+    if request.user.is_vendor :
+        return redirect ('vendor_panel')
+    return render(request,'user_panel/user_panel.html')
+
+def user_reviews (request):
+    return render (request , 'user_panel/reviews.html')
+
+def user_addresses (request):
+    return render(request , 'user_panel/user_address.html')
+def user_profile_page (request):
+    return render (request , 'user_panel/profile.html')
+
+@login_required
+def vendor_panel(request):
+    if not request.user.is_vendor :
+        return redirect ('user_panel')
+    return render(request , 'vendor_panel/vendor_panel.html')
 
 
-@api_view(['POST'])
-def register_user(request):
-    serializer = CustomerRegisterSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({'user':serializer.data}, status=status.HTTP_201_CREATED)
+def vendor_profile_page (request):
+    return render (request , 'vendor_panel/vendor_profile.html')
 
-    return Response ({'error': serializer.errors} , status=status.HTTP_400_BAD_REQUEST)
+def register_page(request):
+    return render(request , 'register.html')
+def register_vendor_page(request):
+    return render(request , 'become_vendor.html')
+def login_page(request):
+    return render(request , 'login.html')
 
+# @login_required
 
-
-@api_view(['POST'])
-def login_user(request):
-    serializer = LoginSerializer(data=request.data)
-
-    if serializer.is_valid() :
-        user = serializer.validated_data['user']
-        login(request , user)
-
-        return Response({'message':'login succes'}, status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+def home_page(request):
+    return render(request , 'home.html')
 
 
-@api_view(['POST'])
-def register_vendor(request):
-    if not request.user.is_authenticated :
-        return Response({'error':'first login then reegister a shop'} , status=status.HTTP_401_UNAUTHORIZED)
 
-    serializer = VendorRegisterSerializer(data=request.data , context={'request':request})
-    if serializer.is_valid():
-        serializer.save()
-        return Response({'message':'vendor succeessfully registered !'} , status=status.HTTP_201_CREATED)
-    return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
+def store_page (request):
+    return render(request , 'store.html')
 
 
-@api_view(['GET' , 'PUT'])
-def user_profile_view(request):
-    user = request.user
+def add_product(request):
+    return render (request , 'product/add_product.html')
 
-    if request.method == 'GET':
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data , status=status.HTTP_200_OK)
-    
-    elif request.method == 'PUT':
-        serializer = UserProfileSerializer(user , data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message':'profile updated !' , 'data':serializer.data},status=status.HTTP_200_OK)
-        return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
+def vendor_product (request) :
+    return render (request , 'product/vendor_product.html')
+
+def edit_product (request , pk):
+    return render (request , 'product/edit_product.html' , context={'pk':pk})
+
+
+def edit_shop (request):
+    return render (request , 'vendor_panel/vendor_shop.html')
+
+
+def all_product (request):
+    return render (request , 'product/all_product.html')
