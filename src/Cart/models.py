@@ -1,17 +1,8 @@
 from django.db import models
-from Customers.models import Customers
-# Create your models here.
+from Accounts.models import User
+from Products.models import Product
+from Customers.models import Addresses
 
-
-# class Carts (models.Model):
-#     customer_id = models.ForeignKey(Customers , on_delete=models.CASCADE)
-#     # status = 
-#     pass
-
-
-
-# class CartDetails(models.Model):
-#     pass
 
 class Orders(models.Model):
 
@@ -23,10 +14,8 @@ class Orders(models.Model):
         ('delivered' , 'delivered'),
     ]
 
-    # address , product
-    customer_id = models.ForeignKey(Customers , on_delete=models.CASCADE)
-    # product_id = models.ForeignKey()
-    # address_id = models.ForeignKey()
+    customer_id = models.ForeignKey(User , on_delete=models.CASCADE)
+    address_id = models.OneToOneField(Addresses , on_delete=models.CASCADE , related_name='order_adddress')
     status = models.CharField(max_length=15 , choices=CHOICE_FIELDS )
     total_price = models.DecimalField(max_digits=5 , decimal_places=2)
     order_date = models.DateTimeField(auto_now_add=True)
@@ -34,4 +23,7 @@ class Orders(models.Model):
 
 
 class OrderDetail (models.Model):
-    pass
+    product_id = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='items')
+    order_id = models.ForeignKey(Orders , on_delete=models.CASCADE , related_name='order')
+    single_price = models.DecimalField(max_digits=5 , decimal_places=2)
+    
