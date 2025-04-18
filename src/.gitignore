@@ -10,5 +10,6 @@ __pycache__/
 *.idea/
 *.vscode/
 migrations/
-../_template_
-../question
+
+../_template_/
+../templates/
