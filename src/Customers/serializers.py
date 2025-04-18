@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from Customers.models import Addresses
-from Accounts.models import Customers
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -12,4 +11,3 @@ class AddressSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         return Addresses.objects.create(customer=user,**validated_data)
-    
