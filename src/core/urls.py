@@ -16,9 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path , include
+from django.conf import settings
+from django.conf.urls.static import static
+# from Website.views import otp_generation_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/' , include('config.urls')),
     path('customer/' , include('Customers.urls')),
+    path('vendors/' , include('Vendors.urls')),
+    path('users/' , include('Accounts.urls')),
+    path('web/' , include('Website.urls')),
+    path('product/' , include('Products.urls')),
+    # path('otp', otp_generation_view , name='otp_generation')
 ]
+
+if settings.DEBUG :
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

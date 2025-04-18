@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import get_addresses , create_address , update_addresses ,  delete_addresses 
+from .views import  GetUserAddresses , CreateAddress , UpdateAddress , DeleteAddress
 
 
 urlpatterns = [
-    path('addresses/', get_addresses, name='get-addresses'),
-    path('address/create', create_address, name='create-address'),
-    path('addresses/update', update_addresses, name='update-addresses'),
-    path('addresses/delete', delete_addresses, name='delete-addresses'),
+    path('address/all', GetUserAddresses.as_view() , name='get-addresses'),
+    path('address/create', CreateAddress.as_view() , name='create-address'),
+    path('address/update', UpdateAddress.as_view() , name='update-addresses'),
+    path('address/delete/<int:id>', DeleteAddress.as_view() , name='delete-addresses'),
 ]
