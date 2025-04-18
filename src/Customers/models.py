@@ -1,5 +1,5 @@
 from django.db import models
-from Accounts.models import Customers
+from Accounts.models import User
 
 # Create your models here.
 # class Customers (User):
@@ -14,12 +14,11 @@ from Accounts.models import Customers
     
 
 class Addresses (models.Model):
-    customer = models.ForeignKey(Customers , on_delete=models.CASCADE, related_name='addresses')
+    user = models.ForeignKey(User , on_delete=models.CASCADE, related_name='addresses')
     city = models.CharField(max_length=100)
     address = models.TextField()
 
     def __str__(self):
         return f"address : {self.city} : {self.address}"
     
-
 
