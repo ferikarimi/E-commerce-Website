@@ -1,11 +1,14 @@
 from rest_framework import serializers
-from .models import Product
+from .models import Product , Reviews
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name' , read_only=True)
+    product_image = serializers.ImageField(source='product.image' , read_only=True)
+
     class Meta :
-        model = Product
-        fileds = '__all__'
+        model = Reviews
+        fields = '__all__'
 
 
 class VendorProductSerializer (serializers.ModelSerializer):

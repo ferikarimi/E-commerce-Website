@@ -2,7 +2,7 @@ from django.shortcuts import render , get_object_or_404
 from .serializers import ReviewsSerializer , VendorProductSerializer , VendorSetProductSerializer , AllProductSerializer
 from rest_framework.decorators import api_view 
 from rest_framework.views import APIView
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Reviews , Product
@@ -13,7 +13,8 @@ from rest_framework import generics
 
 
 class UserReviews(APIView):
-
+    permission_classes = [IsAuthenticated]
+    
     def get (self , request):
         user = request.user
         user_reviews = Reviews.objects.filter(customer_id=user)
