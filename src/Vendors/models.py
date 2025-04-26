@@ -14,12 +14,8 @@ class Vendors (models.Model):
     user = models.OneToOneField(User , on_delete=models.CASCADE)
     role = models.CharField(max_length=10 , choices=CHOISE_FIELDS , default='owner')
     vendor_code = models.OneToOneField('VendorCode' , on_delete=models.SET_NULL , null=True , blank=True)
-    # birth_date = models.DateField(null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # is_vendor = models.BooleanField(default=True)
-    # is_customer = models.BooleanField(default=False)
-
  
 class VendorCode(models.Model):
     class Meta :

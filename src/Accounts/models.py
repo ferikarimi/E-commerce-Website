@@ -4,8 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User (AbstractUser):
-
-    phone_number = PhoneNumberField(null=True , blank=True) # بعدا اجباری میشه تو فاز های بعدی
+    phone_number = PhoneNumberField(null=True , blank=True)
     birth_date = models.DateField(null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_vendor = models.BooleanField(default=False)
