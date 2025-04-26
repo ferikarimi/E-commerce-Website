@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ثبت نام</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="form-container">
+  <h2 class="mb-4 text-center">ثبت نام</h2>
+  
+  <div id="error-message" class="alert alert-danger d-none"></div>
+  
+  <form id="register-form">
+    <div class="mb-3">
+      <label class="form-label">اسم</label>
+      <input type="text" class="form-control" name="first_name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">فامیل</label>
+      <input type="text" class="form-control" name="last_name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">نام کاربری</label>
+      <input type="text" class="form-control" name="username" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">ایمیل</label>
+      <input type="email" class="form-control" name="email">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">شماره تلفن</label>
+      <input type="text" class="form-control" name="phone_number">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">تاریخ تولد</label>
+      <input type="date" class="form-control" name="birth_date">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">رمز عبور</label>
+      <input type="password" class="form-control" name="password" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">تکرار رمز عبور</label>
+      <input type="password" class="form-control" name="password1" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">ثبت نام</button>
+  </form>
+</div>
+<script>
+  const form = document.getElementById('register-form');
+  const errorBox = document.getElementById('error-message');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
+
+    try {
+      const registerResponse = await fetch('/users/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      const registerResult = await registerResponse.json();
+
+      if (registerResponse.status === 201) {
+        // کاربر با موفقیت ثبت نام شد -> حالا لاگین کن
+        const loginResponse = await fetch('/api/token/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: data.username,
+            password: data.password
+          })
+        });
+        const loginResult = await loginResponse.json();
+        if (loginResponse.status === 200) {
+          localStorage.setItem('access_token', loginResult.access);
+          localStorage.setItem('refresh_token', loginResult.refresh);
+          window.location.href = '/register/home/';  // صفحه اصلی
+        } else {
+          errorBox.innerHTML = 'Login failed after registration.';
+          errorBox.classList.remove('d-none');
+        }
+      } else {
+        let errorText = '';
+        for (const key in registerResult) {
+          errorText += `${key}: ${registerResult[key]}<br>`;
+        }
+        errorBox.innerHTML = errorText;
+        errorBox.classList.remove('d-none');
+      }
+    } catch (error) {
+      errorBox.innerHTML = 'Something went wrong.';
+      errorBox.classList.remove('d-none');
+    }
+  });
+</script>
+</body>
+</html>

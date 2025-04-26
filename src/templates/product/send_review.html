@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>ثبت نظر</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
   <style>
+    body {
+      font-family: 'Vazir', sans-serif;
+    }
     .form-container {
-      max-width: 500px;
+      max-width: 600px;
       margin: 50px auto;
       padding: 30px;
       border-radius: 15px;
@@ -18,26 +21,28 @@
 <body class="bg-light">
 
 <div class="form-container">
-  <h2 class="mb-4 text-center">Login</h2>
+  <h2 class="mb-4 text-center">ثبت نظر برای محصول</h2>
 
   <div id="error-message" class="alert alert-danger d-none"></div>
+  <div id="success-message" class="alert alert-success d-none"></div>
 
-  <form id="login-form">
+  <form id="review-form">
     <div class="mb-3">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" name="email" required>
+      <label class="form-label">امتیاز (۱ تا ۵)</label>
+      <input type="number" class="form-control" name="rating" min="1" max="5" required>
     </div>
     <div class="mb-3">
-      <label class="form-label">Password</label>
-      <input type="password" class="form-control" name="password" required>
+      <label class="form-label">متن نظر</label>
+      <textarea class="form-control" name="comment" rows="4" required></textarea>
     </div>
-    <button type="submit" class="btn btn-primary w-100">Login</button>
+    <button type="submit" class="btn btn-primary w-100">ثبت نظر</button>
   </form>
 </div>
 
 <script>
-  const form = document.getElementById('login-form');
+  const form = document.getElementById('review-form');
   const errorBox = document.getElementById('error-message');
+  const successBox = document.getElementById('success-message');
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -46,35 +51,39 @@
     const data = {};
     formData.forEach((value, key) => { data[key] = value });
 
-    fetch('/users/login/', {
+    fetch('/products/send-review/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem("access_token"),
         'X-CSRFToken': getCookie('csrftoken')
       },
       body: JSON.stringify(data)
     })
     .then(response => response.json().then(json => ({status: response.status, body: json})))
     .then(({status, body}) => {
-      if (status === 200) {
-        // ذخیره توکن در localStorage
-        localStorage.setItem("access_token", body.access);
-        // رفتن به صفحه home
-        window.location.href = "/register/home/";
+      if (status === 201) {
+        successBox.innerHTML = 'نظر شما با موفقیت ثبت شد.';
+        successBox.classList.remove('d-none');
+        errorBox.classList.add('d-none');
+        form.reset();
       } else {
-        let errorText = '';
-        if (body.error) {
-          errorText = body.error;
-        } else {
-          errorText = 'ایمیل یا رمز عبور اشتباه است.';
+        let errorText = 'مشکلی در ثبت نظر وجود دارد.';
+        if (body.rating) {
+          errorText += ' امتیاز: ' + body.rating.join(', ');
+        }
+        if (body.comment) {
+          errorText += ' نظر: ' + body.comment.join(', ');
         }
         errorBox.innerHTML = errorText;
         errorBox.classList.remove('d-none');
+        successBox.classList.add('d-none');
       }
     })
     .catch(error => {
-      errorBox.innerHTML = 'Something went wrong.';
+      errorBox.innerHTML = 'مشکلی در ارتباط با سرور پیش آمد.';
       errorBox.classList.remove('d-none');
+      successBox.classList.add('d-none');
     });
   });
 
