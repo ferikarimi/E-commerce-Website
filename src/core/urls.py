@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path , include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
 # from Website.views import otp_generation_view
 
 urlpatterns = [
@@ -28,6 +29,9 @@ urlpatterns = [
     path('users/' , include('Accounts.urls')),
     path('web/' , include('Website.urls')),
     path('product/' , include('Products.urls')),
+
+    path('api/token/' , TokenObtainPairView.as_view() , name='token_obtain_pair'),
+    path('api/token/refresh/' , TokenRefreshView.as_view() , name='token_refresh'),
     # path('otp', otp_generation_view , name='otp_generation')
 ]
 

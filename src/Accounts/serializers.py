@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate , get_user_model
+from django.contrib.auth import get_user_model
 from Products.models import Reviews
 
 User = get_user_model()
@@ -29,36 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(password)
         user.save()
-        return user
-
-
-
-
-# {
-#    "username": "customer1",
-#    "email": "customer1@gmail.com",
-#    "password": "customer1",
-#    "password1": "customer1",
-#    "phone_number": "+989123456789"
-# }
-
-
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-        
-
-        user = User.objects.filter(email=email).first()
-        if user is None or not user.check_password(password):
-            raise serializers.ValidationError("invalid email or password")
-
-        data['user'] = user
-        return data
-    
+        return user    
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -68,8 +39,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'username' , 'email' , 'first_name' , 'last_name' , 'phone_number' , 'birth_date' , 'created_at'
         ]
         read_only_fields = ['username' , 'email' , 'created_at']
-
-
 
 
 
