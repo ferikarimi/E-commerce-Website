@@ -10,6 +10,3 @@ __pycache__/
 *.idea/
 *.vscode/
 migrations/
-
-../_template_/
-../templates/
