@@ -325,7 +325,9 @@
 	        const filteredProducts = allProducts.filter(product => {
 	            const search = searchText.toLowerCase();
 	            return (
-	                (product.name && product.name.toLowerCase().includes(search))
+	                (product.name && product.name.toLowerCase().includes(search)) ||
+	                (product.shop_name && product.shop_name.toLowerCase().includes(search)) 
+
 	            );
 	        });
 			if (filteredProducts.length === 0) {
@@ -366,10 +368,10 @@
 	                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
 	                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
 	                        </div>
-	                        <div class="product-buttons">
-	                            <button class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</button>
-	                            <button class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</button>
-	                        </div>
+                			<div class="product-buttons">
+                			    <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
+                			    <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
+                			</div>
 	                    </div>
 	                </div>
 	            `;

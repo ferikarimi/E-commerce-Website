@@ -172,8 +172,8 @@
                                 <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
                             </div>
                             <div class="product-buttons">
-                                <button class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</button>
-                                <button class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</button>
+                                <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
+                                <a href="/product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
                             </div>
                         </div>
                     </div>

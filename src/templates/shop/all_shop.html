@@ -46,6 +46,16 @@
         <input type="search" placeholder="جستجوی نام و فیلد فروشگاه‌ها" aria-label="Search" id="searchInput" style="padding: 8px; width: 300px; border-radius: 4px; border: 1px solid #ddd;" />
     </div>
 
+    <div style="margin-bottom: 20px;">
+        <label for="sortSelect">مرتب‌سازی بر اساس:</label>
+        <select id="sortSelect" style="margin-right: 10px;">
+            <option value="">جدیدترین</option>
+            <option value="bestseller">پرفروش‌ترین</option>
+            <option value="badseller">کم فروش‌ترین</option>
+            <option value="oldest">قدیمی‌ترین</option>
+        </select>
+    </div>
+
     <div id="message-box" class="alert d-none"></div>
 
     <h2>لیست فروشگاه‌ها</h2>
@@ -54,8 +64,12 @@
     <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
 
     <script>
-        let allStores = []; // برای ذخیره تمام فروشگاه‌ها
-        
+        let allStores = []; 
+        let currentPageUrl = '/web/all_shop/';
+        let nextPageUrl = null;
+        let previousPageUrl = null;
+        let totalCount = 0;
+    
         function showMessage(message, type) {
             const messageBox = document.getElementById('message-box');
             messageBox.textContent = message;
@@ -66,77 +80,127 @@
                 messageBox.classList.add('d-none');
             }, 5000);
         }
-
+    
         document.addEventListener('DOMContentLoaded', () => {
-            fetchStores();
-            
-            // اضافه کردن رویداد جستجو
+            fetchStores(currentPageUrl);
+    
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 filterStores(this.value.toLowerCase());
             });
         });
-
-        function fetchStores() {
-            fetch('/web/all_shop/', {
+    
+        function fetchStores(url) {
+            fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('مشکل در دریافت اطلاعات فروشگاه‌ها');
-                }
+                if (!response.ok) throw new Error('مشکل در دریافت اطلاعات فروشگاه‌ها');
                 return response.json();
             })
-            .then(stores => {
-                allStores = stores; // ذخیره تمام فروشگاه‌ها
-                renderStores(stores);
+            .then(data => {
+                allStores = data.results;
+                nextPageUrl = data.next;
+                previousPageUrl = data.previous;
+                totalCount = data.count;
+                renderStores(allStores);
+                renderPagination();
             })
             .catch(error => {
                 showMessage(error.message, 'danger');
                 console.error('Error loading stores:', error);
             });
         }
-
+    
         function filterStores(searchText) {
             if (!searchText) {
-                renderStores(allStores);
+                fetchStores('/web/all_shop/');
                 return;
             }
-            
-            const filteredStores = allStores.filter(store => {
+    
+            const filtered = allStores.filter(store => {
                 return store.name.toLowerCase().includes(searchText) ||
                        (store.address && store.address.toLowerCase().includes(searchText)) ||
                        (store.phone && store.phone.toLowerCase().includes(searchText)) ||
                        (store.field && store.field.toLowerCase().includes(searchText));
             });
-            
-            renderStores(filteredStores);
+            renderStores(filtered);
         }
-
+    
         function renderStores(stores) {
             const container = document.getElementById('store-list');
-            container.innerHTML = '';  // اول خالی کنیم
-
-            if (stores.length > 0) {
-                stores.forEach(store => {
-                    const storeUrl = `/register/shop_page/${store.id}/`;
-                    container.innerHTML += `
-                        <a href="${storeUrl}" class="store-card">
-                            <h3>نام فروشگاه: ${store.name}</h3>
-                            <p>آدرس: ${store.address || 'ثبت نشده'}</p>
-                            <p>شماره تماس: ${store.phone || 'ثبت نشده'}</p>
-                            <p> تعداد محصولات فروشگاه: ${store.product_count}</p>
-                            <p>نوع فروشگاه: ${store.field || 'ثبت نشده'}</p>
-                        </a>
-                    `;
-                });
-            } else {
+            container.innerHTML = '';
+    
+            if (stores.length === 0) {
                 container.innerHTML = '<p>هیچ فروشگاهی یافت نشد.</p>';
+                return;
+            }
+    
+            stores.forEach(store => {
+                const storeUrl = `/register/shop_page/${store.id}/`;
+                const createdAtDate = store.created_at ? store.created_at.split('T')[0] : 'ثبت نشده';
+
+                container.innerHTML += `
+                    <a href="${storeUrl}" class="store-card">
+                        <h3>نام فروشگاه: ${store.name}</h3>
+                        <p>آدرس: ${store.address || 'ثبت نشده'}</p>
+                        <p>شماره تماس: ${store.phone || 'ثبت نشده'}</p>
+                        <p>تعداد محصولات فروشگاه: ${store.product_count}</p>
+                        <p>نوع فروشگاه: ${store.field || 'ثبت نشده'}</p>
+                        <p>تعداد فروش: ${store.product_sold_count || 'ثبت نشده'}</p>
+                        <p>تاریخ عضویت: ${createdAtDate}</p> 
+                    </a>
+                `;
+            });
+        }
+    
+        function renderPagination() {
+            let paginationContainer = document.getElementById('pagination');
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = 'pagination';
+                paginationContainer.style.marginTop = '20px';
+                paginationContainer.style.textAlign = 'center';
+                document.body.appendChild(paginationContainer);
+            }
+            paginationContainer.innerHTML = '';
+    
+            if (previousPageUrl) {
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'قبلی';
+                prevButton.onclick = () => fetchStores(previousPageUrl);
+                paginationContainer.appendChild(prevButton);
+            }
+    
+            if (nextPageUrl) {
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'بعدی';
+                nextButton.onclick = () => fetchStores(nextPageUrl);
+                paginationContainer.appendChild(nextButton);
             }
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStores(currentPageUrl);
+                
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                filterStores(this.value.toLowerCase());
+            });
+        
+            const sortSelect = document.getElementById('sortSelect');
+            sortSelect.addEventListener('change', function() {
+                const selectedSort = this.value;
+                let url = '/web/all_shop/';
+                if (selectedSort) {
+                    url += `?sort=${selectedSort}`;
+                }
+                currentPageUrl = url;
+                fetchStores(currentPageUrl);
+            });
+        });
+
     </script>
+    
 </body>
 </html>

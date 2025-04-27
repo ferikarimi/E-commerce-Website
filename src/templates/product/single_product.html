@@ -133,7 +133,7 @@
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+
             }
         })
         .then(response => {
@@ -156,19 +156,19 @@
         container.innerHTML = `
             <img src="${product.image || 'https://via.placeholder.com/500x300'}" alt="${product.name}" class="product-image">
             <div class="product-info">
-                <h1>${product.name}</h1>
-                <p class="price">${product.price} تومان</p>
-                <p>موجودی: ${product.stock}</p>
-                <p>امتیاز: ${product.rating} / 5</p>
-                <p>دسته‌بندی: ${product.category_id}</p>
-                <p>فروشگاه: ${product.store_name}</p>
-                <p>${product.description}</p>
+                <h2>نام محصول : ${product.name}</h2>
+                <p class="price">قیمت : ${product.price} تومان</p>
+                <p>موجودی : ${product.stock}</p>
+                <p>امتیاز : ${product.rating} / 5</p>
+                <p>دسته‌بندی : ${product.category}</p>
+                <p>فروشگاه : ${product.store_name}</p>
+                <p>توضیحات محصول : ${product.description}</p>
             </div>
         `;
     }
 
     function fetchReviews(productId) {
-        fetch(`/product/review/${productId}/`, {
+        fetch(`/product/product_reviews/${productId}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -197,9 +197,9 @@
             reviews.forEach(review => {
                 container.innerHTML += `
                     <div class="review-item">
-                        <p><strong>${review.customer || 'کاربر ناشناس'}</strong> <p>
-                        <p>${review.rating} ستاره</p>
-                        <p>${review.comment}</p>
+                        <p><strong> کاربر : ${review.customer_name || 'کاربر ناشناس'}</strong> <p>
+                        <p>امتیاز محصول : ${review.rating} ستاره</p>
+                        <p>نظر کاربر : ${review.comment}</p>
                     </div>
                 `;
             });
