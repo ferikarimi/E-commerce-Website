@@ -40,20 +40,23 @@
       <input type="text" class="form-control" name="phone">
     </div>
     <button type="submit" class="btn btn-success w-100">بروزرسانی فروشگاه</button>
-    <a href="http://127.0.0.1:8000/register/vendor_profile/" class="btn btn-secondary w-100 mt-2">بازگشت به خانه</a>
+    <a href="http://127.0.0.1:8000/register/vendor_panel/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
   </form>
 </div>
 
 <script>
   const form = document.getElementById('shop-form');
   const messageBox = document.getElementById('message-box');
+  const accessToken = localStorage.getItem('access_token');
+
 
   // دریافت اطلاعات فروشگاه
   fetch('/vendors/vendor_shop/', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCookie('csrftoken')
+      'Authorization': 'Bearer ' + accessToken,
+
     }
   })
   .then(response => response.json().then(json => ({status: response.status, body: json})))
@@ -82,7 +85,8 @@
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
+        'Authorization': 'Bearer ' + accessToken,
+
       },
       body: JSON.stringify(data)
     })
@@ -109,23 +113,6 @@
     messageBox.innerHTML = message;
     messageBox.classList.remove('d-none');
   }
-
-  // دریافت CSRF Token
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
 </script>
-
 </body>
 </html>

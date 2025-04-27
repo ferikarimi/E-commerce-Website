@@ -1,312 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <title>جزئیات محصول</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f9f9f9;
-            direction: rtl;
-            padding: 20px;
-        }
-        .product-detail {
-            max-width: 500px;
-            margin: 50px auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .product-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-        }
-        .product-info {
-            padding: 20px;
-        }
-        .product-info h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .product-info p {
-            margin: 10px 0;
-            font-size: 16px;
-            color: #555;
-        }
-        .price {
-            color: #e91e63;
-            font-size: 20px;
-        }
-        .reviews {
-            margin-top: 30px;
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .reviews h2 {
-            margin-bottom: 10px;
-        }
-        .review-item {
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-        }
-        .review-item:last-child {
-            border-bottom: none;
-        }
-        .comment-form {
-            margin-top: 20px;
-        }
-        .comment-form textarea, .comment-form select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        .comment-form button {
-            padding: 10px 20px;
-            background-color: #e91e63;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-<div class="product-detail" id="product-detail">
-
-</div>
-
-<div class="reviews" id="reviews">
-
-</div>
-
-<div class="comment-form">
-    <h2>کامنت خود را بنویسید</h2>
-    <textarea id="comment" placeholder="نظر شما..."></textarea>
-    <select id="rating">
-        <option value="1">1 ستاره</option>
-        <option value="2">2 ستاره</option>
-        <option value="3">3 ستاره</option>
-        <option value="4">4 ستاره</option>
-        <option value="5">5 ستاره</option>
-    </select>
-    <button onclick="submitReview()">ارسال کامنت</button>
-</div>
-
-<a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
-
-<script>
-
-    document.addEventListener('DOMContentLoaded', () => {
-
-      const productId = window.location.pathname.match(/\/single_product\/(\d+)\/?$/)[1];
-      
-      if (!productId) {
-        showMessage('محصول یافت نشد', 'danger');
-        return;
-      }
-
-      fetchProductDetails(productId);
-      
-      fetchReviews(productId);
-
-      setupReviewForm(productId);
-    });
-  
-
-    function fetchProductDetails(productId) {
-      fetch(`/product/single_product/${productId}/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      })
-      .then(response => response.json().then(json => ({status: response.status, body: json})))
-      .then(({status, body}) => {
-        if (status === 200) {
-          renderProductDetails(body);
-        } else {
-          showMessage('مشکل در دریافت اطلاعات محصول', 'danger');
-        }
-      })
-      .catch(error => {
-        showMessage('خطا در ارتباط با سرور', 'danger');
-        console.error('Error:', error);
-      });
-    }
-  
-    // نمایش اطلاعات محصول
-    function renderProductDetails(product) {
-      const container = document.getElementById('product-detail');
-      container.innerHTML = `
-        <img src="${product.image || 'https://via.placeholder.com/500x300'}" alt="${product.name}" class="product-image">
-        <div class="product-info">
-          <h1>${product.name}</h1>
-          <p class="price">${product.price} تومان</p>
-          <p>موجودی: ${product.stock}</p>
-          <p>امتیاز: ${product.rating} / 5</p>
-          <p>دسته‌بندی: ${product.category_id}</p>
-          <p>فروشگاه: ${product.store_name}</p>
-          <p>${product.description}</p>
-        </div>
-      `;
-    }
-
-    function fetchReviews(productId) {
-      fetch(`/product/review/${productId}/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        }
-      })
-      .then(response => response.json().then(json => ({status: response.status, body: json})))
-      .then(({status, body}) => {
-        if (status === 200) {
-          renderReviews(body);
-        } else {
-          showMessage('مشکل در دریافت نظرات', 'warning');
-        }
-      })
-      .catch(error => {
-        console.error('Error loading reviews:', error);
-      });
-    }
-
-    function renderReviews(reviews) {
-      const container = document.getElementById('reviews');
-      container.innerHTML = '<h2>نظرات کاربران</h2>';
-      
-      if (reviews.length > 0) {
-        reviews.forEach(review => {
-          container.innerHTML += `
-            <div class="review-item">
-              <p><strong>${review.customer}</strong> - ${review.rating} ستاره</p>
-              <p>${review.comment}</p>
-            </div>
-          `;
-        });
-      } else {
-        container.innerHTML += '<p>هنوز نظری ثبت نشده است.</p>';
-      }
-    }
-
-    function setupReviewForm(productId) {
-      const form = document.createElement('form');
-      form.id = 'review-form';
-      form.innerHTML = `
-        <h2>ارسال نظر</h2>
-        <div class="form-group">
-          <label for="rating">امتیاز:</label>
-          <select name="rating" id="rating" required>
-            <option value="">انتخاب کنید</option>
-            <option value="1">1 ستاره</option>
-            <option value="2">2 ستاره</option>
-            <option value="3">3 ستاره</option>
-            <option value="4">4 ستاره</option>
-            <option value="5">5 ستاره</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="comment">نظر شما:</label>
-          <textarea name="comment" id="comment" required></textarea>
-        </div>
-        <button type="submit">ارسال نظر</button>
-      `;
-      
-      document.querySelector('.comment-form').appendChild(form);
-      
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        submitReview(productId);
-      });
-    }
-
-    function submitReview(productId) {
-      const rating = document.getElementById('rating').value;
-      const comment = document.getElementById('comment').value;
-      
-      if (!rating || !comment) {
-        showMessage('لطفاً همه فیلدها را پر کنید', 'warning');
-        return;
-      }
-  
-      fetch(`/product/review/create/${productId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-          rating: rating,
-          comment: comment
-        })
-      })
-      .then(response => response.json().then(json => ({status: response.status, body: json})))
-      .then(({status, body}) => {
-        if (status === 201) {
-          showMessage('نظر شما با موفقیت ثبت شد', 'success');
-          document.getElementById('review-form').reset();
-          fetchReviews(productId); 
-        } else {
-          let errors = '';
-          for (const key in body) {
-            errors += `${body[key]}\n`;
-          }
-          showMessage(errors || 'خطا در ثبت نظر', 'danger');
-        }
-      })
-      .catch(error => {
-        showMessage('خطا در ارتباط با سرور', 'danger');
-        console.error('Error:', error);
-      });
-    }
-  
-
-    function showMessage(message, type) {
-      const messageBox = document.getElementById('message-box');
-      if (!messageBox) {
-        const div = document.createElement('div');
-        div.id = 'message-box';
-        div.className = `alert alert-${type}`;
-        div.innerHTML = message;
-        document.body.prepend(div);
-        setTimeout(() => div.remove(), 5000);
-      } else {
-        messageBox.className = `alert alert-${type}`;
-        messageBox.innerHTML = message;
-        setTimeout(() => messageBox.remove(), 5000);
-      }
-    }
-  
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-  </script>
-
-</body>
-</html> -->
-
-
-
 <!DOCTYPE html>
 <html lang="fa">
 <head>
@@ -422,9 +113,9 @@
 <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
 
 <script>
-    // تابع اصلی برای مدیریت کامنت‌ها
+
     document.addEventListener('DOMContentLoaded', () => {
-        // دریافت productId از URL
+
         const productIdMatch = window.location.pathname.match(/\/single_product\/(\d+)\/?$/);
         const productId = productIdMatch ? productIdMatch[1] : null;
         
@@ -432,18 +123,11 @@
             showMessage('محصول یافت نشد', 'danger');
             return;
         }
-
-        // بارگذاری اطلاعات محصول
         fetchProductDetails(productId);
-        
-        // بارگذاری کامنت‌های موجود
         fetchReviews(productId);
-        
-        // تنظیم رویداد برای فرم ارسال نظر
         setupReviewForm(productId);
     });
 
-    // بارگذاری اطلاعات محصول
     function fetchProductDetails(productId) {
         fetch(`/product/single_product/${productId}/`, {
             method: 'GET',
@@ -467,7 +151,6 @@
         });
     }
 
-    // نمایش اطلاعات محصول
     function renderProductDetails(product) {
         const container = document.getElementById('product-detail');
         container.innerHTML = `
@@ -484,13 +167,11 @@
         `;
     }
 
-    // بارگذاری کامنت‌ها
     function fetchReviews(productId) {
         fetch(`/product/review/${productId}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
             }
         })
         .then(response => {
@@ -508,7 +189,6 @@
         });
     }
 
-    // نمایش کامنت‌ها
     function renderReviews(reviews) {
         const container = document.getElementById('reviews');
         container.innerHTML = '<h2>نظرات کاربران</h2>';
@@ -528,7 +208,6 @@
         }
     }
 
-    // تنظیم فرم ارسال نظر
     function setupReviewForm(productId) {
         const form = document.getElementById('reviewForm');
         
@@ -538,7 +217,6 @@
         });
     }
 
-    // ارسال نظر
     function submitReview(productId) {
         const rating = document.getElementById('rating').value;
         const comment = document.getElementById('comment').value;
@@ -552,7 +230,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+
             },
             body: JSON.stringify({
                 rating: rating,
@@ -588,22 +266,6 @@
         setTimeout(() => {
             messageBox.classList.add('d-none');
         }, 5000);
-    }
-
-    // تابع دریافت کوکی
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
     }
 </script>
 

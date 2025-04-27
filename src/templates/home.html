@@ -1,6 +1,6 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fa">
-	
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -8,26 +8,184 @@
     <title>فروشگاه آنلاین</title>
     <link rel="icon" href="img/favicon.png">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="css/bootstrap4-rtl.min.css">
-    <!-- animate CSS -->
-    <link rel="stylesheet" href="css/animate.css">
-    <!-- owl carousel CSS -->
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <!-- font awesome CSS -->
-    <link rel="stylesheet" href="css/all.css">
-    <!-- flaticon CSS -->
-    <link rel="stylesheet" href="css/flaticon.css">
-    <link rel="stylesheet" href="css/themify-icons.css">
-    <!-- font awesome CSS -->
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <!-- swiper CSS -->
-    <link rel="stylesheet" href="css/slick.css">
-    <!-- style CSS -->
-    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="{% static 'home/css/bootstrap4-rtl.min.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/animate.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/owl.carousel.min.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/all.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/flaticon.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/themify-icons.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/magnific-popup.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/slick.css' %}">
+	<link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+	<style>
+		/* استایل جدید و درست کارت و عکس */
+		.product-card {
+		    background: white;
+		    border-radius: 10px;
+		    overflow: hidden;
+		    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: space-between;
+		    height: 100%; /* کارت همیشه ارتفاع بگیره */
+		}
 
+		.product-image {
+		    width: 100%;
+		    height: 180px;
+		    object-fit: contain; /* خیلی مهمه! عکس کش نیاد */
+		    background: #f9f9f9;
+		}
+
+		.product-info {
+		    padding: 10px;
+		    flex-grow: 1;
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: space-between;
+		    text-align: center;
+		}
+
+		.product-info h3 {
+		    font-size: 16px;
+		    margin-bottom: 5px;
+		}
+
+		.product-info p {
+		    font-size: 14px;
+		    margin: 2px 0;
+		}
+
+		.product-buttons {
+		    margin-top: 10px;
+		    display: flex;
+		    justify-content: center;
+		    gap: 5px;
+		}
+
+		.product-buttons button {
+		    font-size: 12px;
+		}
+
+		.product-card {
+		    background: white;
+		    border-radius: 10px;
+		    overflow: hidden;
+		    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		    height: 425px; /* ارتفاع ثابت برای همه کارتها */
+		    display: flex;
+		    flex-direction: column;
+		}
+
+		.product-image-container {
+		    height: 180px;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    background: #f9f9f9;
+		    padding: 10px;
+		}
+
+		.product-image {
+		    max-height: 100%;
+		    max-width: 100%;
+		    object-fit: contain;
+		}
+
+		.product-info {
+		    padding: 15px;
+		    text-align: center;
+		    flex-grow: 1;
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: space-between;
+		}
+		.product-list {
+		    display: grid;
+		    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		    gap: 20px;
+		    padding: 10px;
+		}
+
+		.product-card {
+		    background: white;
+		    border-radius: 10px;
+		    overflow: hidden;
+		    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+
+		.product-image {
+		    width: 100%;
+		    height: 180px;
+		    object-fit: contain;
+		    padding: 10px;
+		    background: #f9f9f9;
+		}
+
+		.product-info {
+		    padding: 15px;
+		    text-align: center;
+		}
+
+		.product-info h3 {
+		    margin: 0 0 10px;
+		    font-size: 16px;
+		    white-space: nowrap;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		}
+
+		.product-info p {
+		    margin: 0;
+		    color: #4e73df;
+		    font-weight: bold;
+		}
+
+
+		/* تنظیم تعداد ستون‌ها با توجه به اندازه صفحه */
+		#product-container {
+		  display: grid;
+		  grid-gap: 20px;
+		}
+
+		/* موبایل (۲ محصول در هر ردیف) */
+		@media (max-width: 576px) {
+		  #product-container {
+		    grid-template-columns: repeat(2, 1fr);
+		  }
+		}
+
+		/* تبلت (۳ محصول در هر ردیف) */
+		@media (min-width: 577px) and (max-width: 992px) {
+		  #product-container {
+		    grid-template-columns: repeat(3, 1fr);
+		  }
+		}
+
+		/* لپتاپ و بزرگتر (۴ محصول در هر ردیف) */
+		@media (min-width: 993px) {
+		  #product-container {
+		    grid-template-columns: repeat(4, 1fr);
+		  }
+		}
+		.w-45 {
+    		width: 45%;
+		}
+		.alert {
+		    padding: 10px;
+		    margin-bottom: 20px;
+		    border-radius: 4px;
+		}
+		.alert-danger {
+		    background-color: #f8d7da;
+		    color: #721c24;
+		}
+		.d-none {
+		    display: none;
+		}
+
+	</style>
 </head>
-
-
 <body class="rtl">
 	<div class="site-wrap">
 		<div class="site-navbar py-2">
@@ -45,6 +203,8 @@
 								<li><a href="http://127.0.0.1:8000/register/register/">ثبت نام</a></li>
 								<li><a href="http://127.0.0.1:8000/register/vendor/">ثبت نام فروشگاه</a></li>
 								<li><a href="#" id="user-panel-link">ورود به پنل کاربری</a></li>
+								<li><a href="#" id="user-panel-link">سبد خرید</a></li>
+								<li><a href="http://127.0.0.1:8000/register/all_shop/" id="user-panel-link">فروشگاه ها</a></li>
 								<li><a href="about.html">درباره ما</a></li>
 								<li><a href="contact.html">تماس با ما</a></li>
 								<li><a href="#" onclick="logout()">خروج</a></li>
@@ -55,10 +215,6 @@
 					</div>
 					<div class="icons">
 						<a href="#" class="icons-btn d-inline-block js-search-open"><span class="icon-search"></span></a>
-						<a href="cart.html" class="icons-btn d-inline-block bag">
-							<span class="icon-shopping-bag"></span>
-							<span class="number">2</span>
-						</a>
 						<a href="#" class="site-menu-toggle js-menu-toggle ml-3 d-inline-block d-lg-none"><span class="icon-menu"></span></a>
 					</div>
 				</div>
@@ -67,6 +223,12 @@
 		</div>
 
 		<!-- Start Product Section -->
+		<div class="search-container">
+			<input type="search" placeholder="جستجوی نام محصولات" aria-label="Search" id="searchInput" style="padding: 8px; width: 300px; border-radius: 4px; border: 1px solid #ddd;" />
+		</div>
+
+		<div id="message-box" class="alert d-none" style="padding: 10px; margin: 10px 0; border-radius: 4px;"></div>
+
 		<div class="container">
 			<select id="sort-select" class="form-control my-3">
 			  <option value="">مرتب سازی</option>
@@ -82,6 +244,8 @@
 			<div class="row" id="product-container"></div>
 			<div id="pagination" class="my-4"></div>
 		  </div>
+
+		  
 		  
 		<!-- End Product Section -->
 
@@ -126,13 +290,51 @@
 
 	<!-- Scripts -->
 	<script>
+	let allProducts = []; // ذخیره همه محصولات
 
 	document.addEventListener('DOMContentLoaded', function () {
 	    const productContainer = document.getElementById('product-container');
-	    // const sortSelect = document.getElementById('sort-select');
+	    const sortSelect = document.getElementById('sort-select');
 	    const paginationContainer = document.getElementById('pagination');
+	    const searchInput = document.getElementById('searchInput');
 	    let currentPage = 1;
 	    let currentSort = '';
+
+
+
+	    // تابع نمایش پیام
+		function showMessage(message, type) {
+	        const messageBox = document.getElementById('message-box');
+	        messageBox.textContent = message;
+	        messageBox.className = `alert alert-${type}`;
+	        messageBox.style.display = 'block';
+				
+	        setTimeout(() => {
+	            messageBox.style.display = 'none';
+	        }, 5000);
+	    }
+
+
+	    // تابع فیلتر محصولات
+	    function filterProducts(searchText) {
+	        if (!searchText.trim()) {
+	            fetchProducts();
+	            return;
+	        }
+		
+	        const filteredProducts = allProducts.filter(product => {
+	            const search = searchText.toLowerCase();
+	            return (
+	                (product.name && product.name.toLowerCase().includes(search))
+	            );
+	        });
+			if (filteredProducts.length === 0) {
+        	    showMessage('هیچ محصولی یافت نشد.', 'danger');
+        	}
+	        renderProducts(filteredProducts);
+	    }
+
+	    // تابع دریافت محصولات
 	    function fetchProducts() {
 	        let url = `/product/all_product/?page=${currentPage}`;
 	        if (currentSort) {
@@ -141,26 +343,41 @@
 	        fetch(url)
 	            .then(response => response.json())
 	            .then(data => {
+	                allProducts = data.results;
 	                renderProducts(data.results);
 	                renderPagination(data.count, data.next, data.previous);
+	                searchInput.value = '';
 	            })
 	            .catch(error => console.error('Error:', error));
 	    }
+
+	    // تابع نمایش محصولات
 	    function renderProducts(products) {
 	        productContainer.innerHTML = '';
 	        products.forEach(product => {
 	            const productHtml = `
 	                <div class="product-card">
-	                    <img src="${product.image}" alt="${product.name}" />
-	                    <h3>${product.name}</h3>
-	                    <p>امتیاز: ${product.rating}</p>
-	                    <p>قیمت: ${product.final_price} تومان</p>
-	                    ${product.discount > 0 ? `<span class="discount">تخفیف: ${product.discount}%</span>` : ''}
+	                    <img src="${product.image}" alt="${product.name}" class="product-image"/>
+	                    <div class="product-info">
+	                        <div>
+	                            <h3>نام: ${product.name}</h3>
+	                            <p>امتیاز: ${product.rating || 'نامشخص'}</p>
+	                            <p>قیمت: ${product.final_price} تومان</p>
+	                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
+	                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
+	                        </div>
+	                        <div class="product-buttons">
+	                            <button class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</button>
+	                            <button class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</button>
+	                        </div>
+	                    </div>
 	                </div>
 	            `;
 	            productContainer.innerHTML += productHtml;
 	        });
 	    }
+
+	    // تابع نمایش صفحه‌بندی
 	    function renderPagination(count, next, previous) {
 	        paginationContainer.innerHTML = '';
 	        if (previous) {
@@ -185,39 +402,37 @@
 	            paginationContainer.appendChild(nextButton);
 	        }
 	    }
-	    // دسته بندی (مرتب‌سازی)
+
+	    // رویداد جستجو
+	    searchInput.addEventListener('input', function(e) {
+	        filterProducts(e.target.value);
+	    });
+
+	    // رویداد مرتب‌سازی
 	    sortSelect.addEventListener('change', function () {
 	        const selectedValue = sortSelect.value;
 	        switch (selectedValue) {
-				// ---------------------------
 	            case 'ارزان‌ترین':
 	                currentSort = 'cheap';
-					break;
-
-				case 'گران‌ترین':
+	                break;
+	            case 'گران‌ترین':
 	                currentSort = 'expensive';
 	                break;
-
-				case 'کمترین امتیاز':
+	            case 'کمترین امتیاز':
 	                currentSort = 'lowest_score';
 	                break;
-
-				case 'بیشترین امتیاز':
+	            case 'بیشترین امتیاز':
 	                currentSort = 'highest_score';
 	                break;
-
-				case 'کم فروش‌ترین':
+	            case 'کم فروش‌ترین':
 	                currentSort = 'badseller';
 	                break;
-
 	            case 'پر فروش‌ترین':
 	                currentSort = 'bestseller';
 	                break;
-
 	            case 'قدیمی ترین':
 	                currentSort = 'oldest';
 	                break;
-
 	            default:
 	                currentSort = '';
 	        }
@@ -225,54 +440,55 @@
 	        fetchProducts();
 	    });
 
-	    // اولین بار
+	    // بارگیری اولیه محصولات
 	    fetchProducts();
 	});
 
+	// توابع خارجی (بدون تغییر)
+	function logout() {
+	    localStorage.removeItem("access_token");
+	    localStorage.removeItem("refresh_token");
+	    window.location.href = "/register/home/";
+	}
 
-		// Logout function
-		function logout() {
-			localStorage.removeItem("access_token");
-			localStorage.removeItem("refresh_token");
-			window.location.href = "/register/home/";
-		}
+	document.addEventListener('DOMContentLoaded', function() {
+	    const panelLink = document.getElementById('user-panel-link');
+	    if (panelLink) {
+	        panelLink.addEventListener('click', function(event) {
+	            event.preventDefault();
+	            const accessToken = localStorage.getItem("access_token");
+	            if (!accessToken) {
+	                window.location.href = "http://127.0.0.1:8000/register/login/";
+	                return;
+	            }
+	            fetch("/users/check_user_type/", {
+	                method: 'GET',
+	                headers: {
+	                    "Authorization": `Bearer ${accessToken}`,
+	                    "Content-Type": "application/json"
+	                }
+	            })
+	            .then(response => {
+	                if (!response.ok) throw new Error("خطا در پاسخ سرور");
+	                return response.json();
+	            })
+	            .then(data => {
+	                if (data.is_superuser){
+	                    window.location.href = "http://127.0.0.1:8000/register/admin_panel/";
+	                } else if (data.is_vendor) {
+	                    window.location.href = "http://127.0.0.1:8000/register/vendor_panel/";
+	                } else {
+	                    window.location.href = "http://127.0.0.1:8000/register/user_panel/";
+	                }
+	            })
+	            .catch(error => {
+	                console.error("خطا:", error);
+	                window.location.href = "http://127.0.0.1:8000/register/login/";
+	            });
+	        });
+	    }
+	});
 
-		// User panel redirect
-		document.addEventListener('DOMContentLoaded', function() {
-		    const panelLink = document.getElementById('user-panel-link');
-		    if (panelLink) {
-		        panelLink.addEventListener('click', function(event) {
-		            event.preventDefault();
-		            const accessToken = localStorage.getItem("access_token");
-		            if (!accessToken) {
-		                window.location.href = "http://127.0.0.1:8000/register/login/";
-		                return;
-		            }
-		            fetch("/users/check_user_type/", {
-		                method: 'GET',
-		                headers: {
-		                    "Authorization": `Bearer ${accessToken}`,
-		                    "Content-Type": "application/json"
-		                }
-		            })
-		            .then(response => {
-		                if (!response.ok) throw new Error("خطا در پاسخ سرور");
-		                return response.json();
-		            })
-		            .then(data => {
-		                if (data.is_vendor) {
-		                    window.location.href = "http://127.0.0.1:8000/register/vendor_panel/";
-		                } else {
-		                    window.location.href = "http://127.0.0.1:8000/register/user_panel/";
-		                }
-		            })
-		            .catch(error => {
-		                console.error("خطا:", error);
-		                window.location.href = "http://127.0.0.1:8000/register/login/";
-		            });
-		        });
-		    }
-		});
 	</script>
 
 </body>

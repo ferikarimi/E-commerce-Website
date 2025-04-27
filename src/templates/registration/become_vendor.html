@@ -25,7 +25,7 @@
 
   <form id="vendor-form">
     <div class="mb-3">
-      <label class="form-label">کد فروشنده (vendor code)</label>
+      <label class="form-label">کد فروشنده</label>
       <input type="number" class="form-control" name="vendor_code" required>
     </div>
     <div class="mb-3">
@@ -36,6 +36,13 @@
       <label class="form-label">آدرس فروشگاه</label>
       <input type="text" class="form-control" name="shop_address" required>
     </div>
+
+    <div class="mb-3">
+      <label class="form-label">نوع فروشگاه</label>
+      <input type="text" class="form-control" name="shop_field" required>
+    </div>
+
+
     <button type="submit" class="btn btn-success w-100">ثبت فروشگاه</button>
   </form>
 
@@ -58,7 +65,6 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
       },
       body: JSON.stringify(data)
@@ -91,20 +97,6 @@
     });
   });
 
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
 </script>
 </body>
 </html>

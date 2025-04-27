@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
   <meta charset="UTF-8">
-  <title>Add New Product</title>
+  <title>افزودن محصول</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .form-container {
@@ -18,37 +18,39 @@
 <body class="bg-light">
 
 <div class="form-container">
-  <h2 class="mb-4 text-center">Add New Product</h2>
+  <h2 class="mb-4 text-center">افزودن محصول</h2>
 
   <div id="success-message" class="alert alert-success d-none"></div>
   <div id="error-message" class="alert alert-danger d-none"></div>
 
   <form id="add-product-form" enctype="multipart/form-data">
     <div class="mb-3">
-      <label class="form-label">Category</label>
-      <input type="text" class="form-control" name="category_id" required>
+      <label class="form-label">دسته بندی</label>
+      <input type="number" class="form-control" name="category" required>
     </div>
     <div class="mb-3">
-      <label class="form-label">Product Name</label>
+      <label class="form-label">نام محصول</label>
       <input type="text" class="form-control" name="name" required>
     </div>
     <div class="mb-3">
-      <label class="form-label">Price</label>
+      <label class="form-label">قیمت</label>
       <input type="number" class="form-control" name="price" required step="0.01">
     </div>
     <div class="mb-3">
-      <label class="form-label">Description</label>
+      <label class="form-label">توضیحات محصول</label>
       <textarea class="form-control" name="description" rows="3"></textarea>
     </div>
     <div class="mb-3">
-      <label class="form-label">Stock</label>
+      <label class="form-label">تعداد</label>
       <input type="number" class="form-control" name="stock" required>
     </div>
     <div class="mb-3">
-      <label class="form-label">Image</label>
+      <label class="form-label">عکس</label>
       <input type="file" class="form-control" name="image" accept="image/*">
     </div>
-    <button type="submit" class="btn btn-primary w-100">Add Product</button>
+    <button type="submit" class="btn btn-primary w-100">افزودن محصول</button>
+    <a href="http://127.0.0.1:8000/register/vendor_panel/" class="btn btn-secondary w-100">بازکشت</a>
+
   </form>
 </div>
 
@@ -56,6 +58,7 @@
   const form = document.getElementById('add-product-form');
   const successBox = document.getElementById('success-message');
   const errorBox = document.getElementById('error-message');
+  const accessToken = localStorage.getItem('access_token');
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -65,12 +68,13 @@
     fetch('/product/add_product/', {
       method: 'POST',
       headers: {
-        'X-CSRFToken': getCookie('csrftoken')
+        'Authorization': 'Bearer ' + accessToken,
       },
       body: formData
     })
     .then(response => response.json().then(json => ({status: response.status, body: json})))
     .then(({status, body}) => {
+      console.log('Server Response:', body);
       if (status === 201) {
         successBox.innerHTML = body.message;
         successBox.classList.remove('d-none');
@@ -94,21 +98,6 @@
       successBox.classList.add('d-none');
     });
   });
-
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
 </script>
 </body>
 </html>
