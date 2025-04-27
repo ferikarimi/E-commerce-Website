@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import VendorProfile , RegisterVendor , VendorShop
+from .views import VendorProfile , RegisterVendor , VendorShop , VendorCodeView , RegisterManager
 from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
 
 
@@ -10,4 +10,10 @@ urlpatterns = [
 
     path('token/', TokenObtainPairView.as_view() , name='Token_Obtain_Pair'),
     path('token/refresh/', TokenRefreshView.as_view() , name='Token_Refresh'),
+
+    path('vendor_code/', VendorCodeView.as_view() , name='vendor_code'),
+
+    path('register_manager_or_operator/', RegisterManager.as_view() , name='register_manager'),
+    path('register_manager_or_operator/<str:username>/', RegisterManager.as_view() , name='get_delete_register_manager'),
+
 ]
