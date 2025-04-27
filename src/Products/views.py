@@ -1,15 +1,13 @@
-from django.shortcuts import render , get_object_or_404
-from .serializers import ReviewsSerializer , VendorProductSerializer , VendorSetProductSerializer , AllProductSerializer
-from rest_framework.decorators import api_view 
+from django.shortcuts import get_object_or_404
+from .serializers import ReviewsSerializer , AddProductSerializer , AllProductSerializer , VendorProductSerializer , EditProductSerializer , ShowSingleSerializer , SingleProductReviewsSerializer , SingleProductSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 from .models import Reviews , Product
 from Vendors.models import Vendors , Shop
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
+
 
 
 class UserReviews(APIView):
@@ -27,52 +25,44 @@ class AddProduct(APIView):
     def post (self , request):
         vendor = get_object_or_404(Vendors , user=request.user)
         shop = get_object_or_404(Shop , vendor=vendor)
-        data = request.data.copy()
-        serializer = VendorProductSerializer(data=data)
+        serializer = AddProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(
-                vendor_id = vendor ,
+                vendor_id = vendor.id ,
                 store_name = shop
             )
-            return Response({'message':'product created !'} , status=status.HTTP_201_CREATED)
-        return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'message':'product created !'} , status=201)
+        return Response(serializer.errors , status=400)
 
 
 class VendorsProduct(APIView):
 
     def get(self , request):
-
         vendor = Vendors.objects.get(user=request.user)
         all_product = Product.objects.filter(vendor_id = vendor)
         serializer = VendorProductSerializer(all_product , many=True)
         return Response(serializer.data)
 
 
-
-
 class EditProduct (APIView):
-
     def get (self , request , pk):
         product = get_object_or_404(Product , pk=pk)
-        serializer = VendorProductSerializer(product)
+        serializer = ShowSingleSerializer(product)
         return Response (serializer.data)
 
     def put (self , request , pk):
         product = get_object_or_404(Product , pk=pk)
-        serializer = VendorProductSerializer (product)
+        serializer = EditProductSerializer (product , data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors , status=400)
     
 
-
-
 class ProductPagination(PageNumberPagination):
-    page_size = 15
+    page_size = 8
     page_size_query_param = 'page_size'
-    max_page_size = 30
+    max_page_size = 16
 
 
 class AllProducts(generics.ListAPIView):
@@ -109,3 +99,32 @@ class AllProducts(generics.ListAPIView):
             queryset = queryset.order_by('-created_at')
         
         return queryset
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class ProductReviews(APIView):
+    def get (self , request , id):
+        product = get_object_or_404(Product , id=id)
+        review = Reviews.objects.filter(product=product ,status='approved')
+        serializer = SingleProductReviewsSerializer (review , many=True)
+        return Response (serializer.data , status=200)
+    
+
+
+class SingleProduct(APIView):
+    def get (self , request , id):
+        product = get_object_or_404 (Product , id=id)
+        serializer = SingleProductSerializer(product)
+        return Response (serializer.data , status=200)

@@ -18,12 +18,12 @@ class Product(models.Model):
     stock = models.IntegerField()
     rating = models.DecimalField(max_digits=1 , decimal_places=1 , default=0.0)
     sold_count = models.IntegerField(default=0)
-    store_name = models.ForeignKey(Shop , on_delete=models.PROTECT , related_name='store_name')
+    store_name = models.ForeignKey(Shop , on_delete=models.PROTECT , related_name='product')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
     def final_price(self):
-        discount = self.discount_set.first()
+        discount = self.discount.first()
         if discount :
             if discount.is_percentage:
                 return self.price * (1 - discount.amount / 100)
@@ -33,10 +33,9 @@ class Product(models.Model):
 
 
 class Discount(models.Model):
-    product = models.ForeignKey(Product , on_delete=models.CASCADE)
-    vendor = models.ForeignKey(Vendors , on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=2 , decimal_places=2)
-    discount_code = models.IntegerField(default=None)
+    product = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='discount')
+    amount = models.DecimalField(max_digits=6 , decimal_places=2)
+    discount_code = models.IntegerField(default=None , null=True , blank=True)
     is_percentage = models.BooleanField(default=True)
 
 

@@ -13,7 +13,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Discount)
 class UserAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('product', 'amount', 'is_percentage')
 
 @admin.register(Reviews)
 class UserAdmin(admin.ModelAdmin):
