@@ -4,70 +4,60 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from .serializers import AllShopSerializer , SingleShopSerializer , ShowOneShopProductsSerializer
-
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated , IsAdminUser , AllowAny
-
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics
 
 
+class ShopPagination (PageNumberPagination):
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 12
+    
 
+class AllShopView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    shops = Shop.objects.all()
+    serializer_class = AllShopSerializer
+    pagination_class = ShopPagination
 
+    def get_queryset(self):
+        shops = Shop.objects.all()
+        sort_by = self.request.query_params.get('sort')
 
+        if sort_by == 'badseller':
+            shops = shops.order_by('product_sold_count')
 
+        elif sort_by == 'bestseller':
+            shops = shops.order_by('-product_sold_count')
 
-
-class AllShopView(APIView):
-    def get (self , request):
-        try:
-            shops = Shop.objects.all()
-            serializer = AllShopSerializer (shops , many=True)
-            return Response (serializer.data , status=200)
-        except Exception as e :
-            return Response ({'error':'unable to load shops'} , status=404)
+        elif sort_by == 'oldest':
+            shops = shops.order_by('created_at')
+        
+        else :
+            shops = shops.order_by('-created_at')
+        
+        return shops
 
 
 class SingleShopView(APIView):
+    permission_classes = [AllowAny]
+
     def get (self , request , id):
         shop = get_object_or_404(Shop , id=id)
         serializer = SingleShopSerializer (shop)
         return Response (serializer.data , status=200)
 
 class GetShopProductView (APIView):
+    permission_classes = [AllowAny]
+
     def get (self , request , id):
         shop = get_object_or_404(Shop ,id=id)
         products = Product.objects.filter(store_name=shop)
         serializer = ShowOneShopProductsSerializer (products , many=True)
         return Response (serializer.data , status=200)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

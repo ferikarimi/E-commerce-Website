@@ -11,63 +11,61 @@ def user_addresses (request):
 def user_profile_page (request):
     return render (request , 'panels/user_panel/profile.html')
 
-
 # vendor panel
 def vendor_panel(request):
     return render(request , 'panels/vendor_panel/vendor_panel.html')
+def vendor_profile_page (request):
+    return render (request , 'panels/vendor_panel/vendor_profile.html')
+def edit_shop (request):
+    return render (request , 'panels/vendor_panel/vendor_shop.html')
+
+def register_operator_or_manager(request):
+    return render (request , 'panels/vendor_panel/operator_manager.html')
+def operator_panel(request):
+    return render (request , 'panels/vendor_panel/operator_panel.html')
+def manager_panel(request):
+    return render (request , 'panels/vendor_panel/manager_panel.html')
 
 
-# admin panel
-def admin_panel(request):
-    return render (request , 'panels/admin_panel/admin_panel.html')
+
+
 
 
 # registration
 def register_page(request):
     return render(request , 'registration/register.html')
-
 def register_vendor_page(request):
     return render(request , 'registration/become_vendor.html')
-
 def login_page(request):
     return render(request , 'registration/login.html')
 
 
 
 
+# admin panel
+def admin_panel(request):
+    return render (request , 'panels/admin_panel/admin_panel.html')
+def add_vendor_code(request):
+    return render (request , 'panels/admin_panel/add_vendor_code.html')
+def vendor_code(request):
+    return render (request , 'panels/admin_panel/vendor_code.html')
 
-
-
-
-def vendor_profile_page (request):
-    return render (request , 'vendor_panel/vendor_profile.html')
-
-
-
-# @login_required
-
-def home_page(request):
-    return render(request , 'home.html')
-
-
-
-def store_page (request):
-    return render(request , 'store.html')
-
-
-def add_product(request):
-    return render (request , 'product/add_product.html')
-
-def vendor_product (request) :
-    return render (request , 'product/vendor_product.html')
-
-def edit_product (request , pk):
-    return render (request , 'product/edit_product.html' , context={'pk':pk})
-
-
-def edit_shop (request):
-    return render (request , 'vendor_panel/vendor_shop.html')
-
-
+# product 
 def all_product (request):
     return render (request , 'product/all_product.html')
+def add_product(request):
+    return render (request , 'product/add_product.html')
+def vendor_product (request) :
+    return render (request , 'product/vendor_product.html')
+def edit_product (request , pk):
+    return render (request , 'product/edit_product.html' , context={'pk':pk})
+def single_product_page(request, pk):
+    return render (request , 'product/single_product.html' , context={'pk':pk})
+
+# base
+def home_page(request):
+    return render(request , 'home.html')
+def shop_page (request , pk):
+    return render(request , 'shop/single_shop.html' , context={'pk':pk})
+def all_shop (request):
+    return render(request , 'shop/all_shop.html')

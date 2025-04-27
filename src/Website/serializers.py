@@ -6,8 +6,7 @@ class AllShopSerializer(serializers.ModelSerializer):
 
     class Meta :
         model = Shop
-        fields = ['id','name','address','phone','description','field']
-
+        fields = ['id','name','address','phone','description','field','created_at','product_sold_count']
 
 
 class SingleShopSerializer (serializers.ModelSerializer):
