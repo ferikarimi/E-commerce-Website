@@ -1,22 +1,27 @@
 from rest_framework import serializers
-from Products.models import Product , Discount
+from Products.models import Shop,Product
 
-class ProductSerializer(serializers.ModelSerializer):
+class AllShopSerializer(serializers.ModelSerializer):
 
+
+    class Meta :
+        model = Shop
+        fields = ['id','name','address','phone','description','field']
+
+
+
+class SingleShopSerializer (serializers.ModelSerializer):
+    class Meta :
+        model = Shop
+        fields = ['name','address','phone','description','field']
+
+
+class ShowOneShopProductsSerializer (serializers.ModelSerializer):
     class Meta :
         model = Product
         fields = [
-            'id','name','price','final_price','rating','sold_count','stock','category','vendor','discount'
-        ]
-
-    def get_final_price(self , object):
-        return object.final_price()
-    
-    def get_discount(self , object):
-        discount = object.discount_set.first()
-        if discount :
-            return {
-                "amount": discount.amount ,
-                "is_percentage": discount.is_percentage
-            }
-        return None
+            'category','name','description','price','stock','image','id','final_price'
+            ]
+        read_only_fields = [
+            'category','name','description','price','stock','image','id','final_price'
+            ]

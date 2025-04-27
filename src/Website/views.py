@@ -1,44 +1,83 @@
 from django.shortcuts import render , redirect
-from Products.models import Product
+from Products.models import Shop ,Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .serializers import ProductSerializer
+from .serializers import AllShopSerializer , SingleShopSerializer , ShowOneShopProductsSerializer
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated , IsAdminUser , AllowAny
+
+from django.shortcuts import get_object_or_404
+
+
+
+
+
+
+
+
+class AllShopView(APIView):
+    def get (self , request):
+        try:
+            shops = Shop.objects.all()
+            serializer = AllShopSerializer (shops , many=True)
+            return Response (serializer.data , status=200)
+        except Exception as e :
+            return Response ({'error':'unable to load shops'} , status=404)
+
+
+class SingleShopView(APIView):
+    def get (self , request , id):
+        shop = get_object_or_404(Shop , id=id)
+        serializer = SingleShopSerializer (shop)
+        return Response (serializer.data , status=200)
+
+class GetShopProductView (APIView):
+    def get (self , request , id):
+        shop = get_object_or_404(Shop ,id=id)
+        products = Product.objects.filter(store_name=shop)
+        serializer = ShowOneShopProductsSerializer (products , many=True)
+        return Response (serializer.data , status=200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # from django.http import HttpResponseBadRequest
 # from .urls import create_token_view
 # from .tasks import send_otp_code
 # from .redis_setup import client
-
-
-
-@api_view(['GET'])
-def product_list_view(request):
-    products = Product.objects.all()
-    category_id = request.GET.get('category_id')
-    vendor_id = request.GET.get('vendor_id')
-    ordering = request.GET.get('ordering')
-
-    if category_id :
-        products = products.filter(category_id=category_id)
-
-    if vendor_id :
-        products = products.filter(vendor_id=vendor_id)
-
-    if ordering in ['price' , '-price' , 'rating' , '-rating', 'sold_count' ,'-sold_count']:
-        products = products.order_by(ordering)
-
-    paginator = PageNumberPagination()
-    paginator.page_size = 5
-    result_page = paginator.paginate_queryset(products , request)
-    serialiazer = ProductSerializer(result_page , many=True)
-    return paginator.get_paginated_response(serialiazer.data)
-
-
-
-
-
 
 # def otp_generation_view (request):
 #     if request.method == 'POST':
