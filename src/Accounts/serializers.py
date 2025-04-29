@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from Products.models import Reviews
+import jdatetime
+
 
 User = get_user_model()
- 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     class Meta :
@@ -33,17 +33,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    created_at_shamsi = serializers.SerializerMethodField()
     class Meta :
         model = User
         fields = [
-            'username' , 'email' , 'first_name' , 'last_name' , 'phone_number' , 'birth_date' , 'created_at'
+            'username' , 'email' , 'first_name' , 'last_name' , 'phone_number' , 'birth_date' , 'created_at' , 'created_at_shamsi'
         ]
-        read_only_fields = ['username' , 'email' , 'created_at']
+        read_only_fields = ['username' , 'email' , 'created_at' , 'created_at_shamsi']
 
-
-
-class UserReviewsSerializer(serializers.ModelSerializer):
-    class Meta :
-        model = Reviews
-        fields = []
-        
+    def get_created_at_shamsi (self , obj):
+        if obj.created_at :
+            created_at = obj.created_at
+            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
+            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+        return None

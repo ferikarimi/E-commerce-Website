@@ -56,6 +56,8 @@ class Logout (APIView):
 class CheckUserType (APIView):
     def get (self, request):
         return Response ({
+            'username' : request.user.username ,
+            'is_superuser': request.user.is_superuser ,
             'is_vendor': request.user.is_vendor ,
-            'username': request.user.username
+            'is_customer': request.user.is_customer
         })

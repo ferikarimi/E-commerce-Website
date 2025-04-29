@@ -1,13 +1,22 @@
 from rest_framework import serializers
 from Products.models import Shop,Product
+import jdatetime
 
 class AllShopSerializer(serializers.ModelSerializer):
+    created_at_shamsi = serializers.SerializerMethodField()
+
 
 
     class Meta :
         model = Shop
-        fields = ['id','name','address','phone','description','field','created_at','product_sold_count']
+        fields = ['id','name','address','phone','description','field','created_at','product_sold_count' , 'created_at_shamsi']
 
+    def get_created_at_shamsi (self , obj):
+        if obj.created_at :
+            created_at = obj.created_at
+            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
+            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+        return None
 
 class SingleShopSerializer (serializers.ModelSerializer):
     class Meta :
