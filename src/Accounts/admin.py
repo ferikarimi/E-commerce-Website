@@ -3,4 +3,23 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    pass
+    ordering = ["username"]
+
+    search_fields = ["username"]
+
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": [("is_vendor" , "is_customer") ,("first_name", "last_name") , ("username" , "password" , "email" , "phone_number" ,"birth_date")],
+            },
+        ),
+    ]
+
+    readonly_fields = [
+        "password","last_login"
+    ]
+
+    list_display = [
+        "username" , "is_customer", "is_superuser"
+        ]

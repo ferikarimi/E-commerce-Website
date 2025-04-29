@@ -3,6 +3,9 @@ from Accounts.models import User
 
 
 class Addresses (models.Model):
+    class Meta:
+        verbose_name_plural = "Addresses |  آدرس‌ها"
+
     user = models.ForeignKey(User , on_delete=models.CASCADE, related_name='addresses')
     city = models.CharField(max_length=100)
     address = models.TextField()

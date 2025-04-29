@@ -4,6 +4,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Vendors (models.Model):
+    class Meta:
+        verbose_name_plural = "Vendors | فروشندگان"
     
     CHOISE_FIELDS =[
         ('owner' , 'owner'),
@@ -17,8 +19,13 @@ class Vendors (models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     parent = models.ForeignKey('self' , on_delete=models.SET_NULL , null=True , blank=True , related_name='vendor_member')
+
+    def __str__(self):
+        return self.user.username
  
 class VendorCode(models.Model):
+    class Meta:
+        verbose_name_plural = "VendorCode | کد فروشنده"
     class Meta :
         ordering = ['-created_at']
         
@@ -26,8 +33,14 @@ class VendorCode(models.Model):
     is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return str(self.code)
+
 
 class Shop (models.Model):
+    class Meta:
+        verbose_name_plural = "Shops | فروشگاه ها"
+
     vendor = models.OneToOneField(Vendors , on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=100)
@@ -36,3 +49,6 @@ class Shop (models.Model):
     field = models.CharField(max_length=25)
     created_at = models.DateTimeField(auto_now_add=True , null=True , blank=True)
     product_sold_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.name

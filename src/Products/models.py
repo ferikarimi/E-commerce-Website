@@ -4,11 +4,19 @@ from Accounts.models import User
 
 
 class Category (models.Model):
+    class Meta:
+        verbose_name_plural = "Categories | دسته بندی‌ها"
+
     name = models.CharField(max_length=30)
     parent = models.ForeignKey('self' , on_delete=models.PROTECT , null=True , blank=True)
 
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
+    class Meta:
+        verbose_name_plural = "Products | محصولات"
+
     category = models.ForeignKey(Category , on_delete=models.CASCADE)
     vendor = models.ForeignKey(Vendors , models.CASCADE)
     name = models.CharField(max_length=35)
@@ -21,7 +29,6 @@ class Product(models.Model):
     store_name = models.ForeignKey(Shop , on_delete=models.PROTECT , related_name='product')
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def final_price(self):
         discount = self.discount.first()
         if discount :
@@ -30,9 +37,17 @@ class Product(models.Model):
             else :
                 return self.price - discount.amount
         return self.price
+    
+    def __str__(self):
+        return self.name
+    
+
 
 
 class Discount(models.Model):
+    class Meta:
+        verbose_name_plural = "Discounts | تخفیف‌ها"
+
     product = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='discount')
     amount = models.DecimalField(max_digits=6 , decimal_places=2)
     discount_code = models.IntegerField(default=None , null=True , blank=True)
@@ -40,6 +55,9 @@ class Discount(models.Model):
 
 
 class Reviews(models.Model):
+    class Meta:
+        verbose_name_plural = "Reviews | نظرات"
+
     RATING_CHOICE_FIELD = {
         (1 , '1'),
         (2 , '2'),

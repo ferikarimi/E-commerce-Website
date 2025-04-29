@@ -4,17 +4,29 @@ from .models import Category , Product , Discount , Reviews
 # Register your models here.
 
 @admin.register(Category)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class CategoryAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+    list_display = [
+        "name" , "parent"
+        ]
 
 @admin.register(Product)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class ProductAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+    list_display = [
+        "name" , "category"
+        ]
 
 @admin.register(Discount)
-class UserAdmin(admin.ModelAdmin):
+class DiscountAdmin(admin.ModelAdmin):
     list_display = ('product', 'amount', 'is_percentage')
 
 @admin.register(Reviews)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class ReviewsAdmin(admin.ModelAdmin):
+    search_fields = ["customer"]
+
+    list_display = [
+        "customer" , "status"
+        ]

@@ -3,13 +3,25 @@ from .models import Vendors , VendorCode  , Shop
 
 
 @admin.register(Vendors)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class VendorsAdmin(admin.ModelAdmin):
+    search_fields = ["username"]
+
+    list_display = [
+        "user__username" , "role" , "shop__name"
+        ]
 
 @admin.register(VendorCode)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class VendorCodeAdmin(admin.ModelAdmin):
+    search_fields = ["is_used"]
+
+    list_display = [
+        "code" , "is_used"
+        ]
 
 @admin.register(Shop)
-class UserAdmin(admin.ModelAdmin):
-    pass
+class ShopAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+    list_display = [
+        "name" , "field"
+        ]
