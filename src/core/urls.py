@@ -25,6 +25,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/' , include('config.urls')),
     path('customer/' , include('Customers.urls')),
+    path('cart/' , include('Cart.urls')),
+
     path('vendors/' , include('Vendors.urls')),
     path('users/' , include('Accounts.urls')),
     path('web/' , include('Website.urls')),
@@ -38,3 +40,9 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+
+admin.site.site_header = "ONLINE SHOP ADMIN PANEL"
+admin.site.site_title = "ADMIN PANEL"
+admin.site.index_title = "WELCOME"

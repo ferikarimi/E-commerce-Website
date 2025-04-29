@@ -45,6 +45,8 @@ def login_page(request):
 # admin panel
 def admin_panel(request):
     return render (request , 'panels/admin_panel/admin_panel.html')
+def admin_profile(request):
+    return render (request , 'panels/admin_panel/profile.html')
 def add_vendor_code(request):
     return render (request , 'panels/admin_panel/add_vendor_code.html')
 def vendor_code(request):
@@ -69,3 +71,13 @@ def shop_page (request , pk):
     return render(request , 'shop/single_shop.html' , context={'pk':pk})
 def all_shop (request):
     return render(request , 'shop/all_shop.html')
+
+
+
+
+def cart (request):
+    return render (request , 'cart.html')
+def checkout (request):
+    return render (request , 'checkout.html')
+def thankyou(request):
+    return render (request , 'thankyou.html')
