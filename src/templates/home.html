@@ -185,6 +185,7 @@
 		}
 
 	</style>
+
 </head>
 <body class="rtl">
 	<div class="site-wrap">
@@ -203,7 +204,13 @@
 								<li><a href="http://127.0.0.1:8000/register/register/">ثبت نام</a></li>
 								<li><a href="http://127.0.0.1:8000/register/vendor/">ثبت نام فروشگاه</a></li>
 								<li><a href="#" id="user-panel-link">ورود به پنل کاربری</a></li>
-								<li><a href="#" id="user-panel-link">سبد خرید</a></li>
+
+
+
+								<li><a href="http://127.0.0.1:8000/register/cart/" id="user-panel-link">سبد خرید</a></li>
+
+
+
 								<li><a href="http://127.0.0.1:8000/register/all_shop/" id="user-panel-link">فروشگاه ها</a></li>
 								<li><a href="about.html">درباره ما</a></li>
 								<li><a href="contact.html">تماس با ما</a></li>
@@ -271,6 +278,8 @@
 						</div>
 					</div>
 				</div>
+				<div id="current-date-time" style="font-size:18px; font-weight:bold;"></div>
+
 				<div class="row pt-5 mt-5 text-center">
 					<div class="col-md-12">
 						<p>
@@ -283,14 +292,47 @@
 						</p>
 					</div>
 				</div>
+
 			</div>
+
 		</footer>
 		<!-- End Footer Section -->
 	</div>
 
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/moment-jalaali@0.9.2/build/moment-jalaali.js"></script>
+
 	<!-- Scripts -->
 	<script>
 	let allProducts = []; // ذخیره همه محصولات
+
+	async function addToCart(productId) {
+	    try {
+	        const response = await fetch('http://127.0.0.1:8000/cart/cart/', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'Accept': 'application/json'
+	            },
+	            body: JSON.stringify({
+	                product_id: productId,
+	                quantity: 1 // تعداد پیشفرض که میخوای اضافه بشه
+	            })
+	        });
+		
+	        if (!response.ok) {
+	            throw new Error('خطا در افزودن به سبد خرید');
+	        }
+		
+	        const result = await response.json();
+	        alert('محصول به سبد خرید اضافه شد!');
+	    } catch (error) {
+	        console.error('Error adding to cart:', error);
+	        alert('مشکلی پیش آمده. لطفا دوباره تلاش کنید.');
+	    }
+	}
 
 	document.addEventListener('DOMContentLoaded', function () {
 	    const productContainer = document.getElementById('product-container');
@@ -353,6 +395,7 @@
 	            .catch(error => console.error('Error:', error));
 	    }
 
+
 	    // تابع نمایش محصولات
 	    function renderProducts(products) {
 	        productContainer.innerHTML = '';
@@ -368,16 +411,21 @@
 	                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
 	                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
 	                        </div>
-                			<div class="product-buttons">
-                			    <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
-                			    <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
-                			</div>
+                    		<div class="product-buttons">
+                    		    <button onclick="addToCart(${product.id})" class="btn btn-primary btn-sm btn-block mb-2">
+                    		        افزودن به سبد خرید
+                    		    </button>
+                    		    <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">
+                    		        جزئیات محصول
+                    		    </a>
+                    		</div>
 	                    </div>
 	                </div>
 	            `;
 	            productContainer.innerHTML += productHtml;
 	        });
 	    }
+
 
 	    // تابع نمایش صفحه‌بندی
 	    function renderPagination(count, next, previous) {
@@ -479,9 +527,11 @@
 	                    window.location.href = "http://127.0.0.1:8000/register/admin_panel/";
 	                } else if (data.is_vendor) {
 	                    window.location.href = "http://127.0.0.1:8000/register/vendor_panel/";
-	                } else {
+	                } else if (data.is_customer) {
 	                    window.location.href = "http://127.0.0.1:8000/register/user_panel/";
-	                }
+	                } else {
+	                    window.location.href = "http://127.0.0.1:8000/register/home/";
+					}
 	            })
 	            .catch(error => {
 	                console.error("خطا:", error);
@@ -490,6 +540,15 @@
 	        });
 	    }
 	});
+
+	function updateDateTime() {
+	  const now = moment();
+	  const jalaliDateTime = now.format('jYYYY/jMM/jDD HH:mm');
+	  document.getElementById('current-date-time').innerText = jalaliDateTime;
+	}
+
+	setInterval(updateDateTime, 1000);
+	updateDateTime();
 
 	</script>
 
