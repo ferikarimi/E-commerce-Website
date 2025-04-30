@@ -26,7 +26,6 @@ class Vendors (models.Model):
 class VendorCode(models.Model):
     class Meta:
         verbose_name_plural = "VendorCode | کد فروشنده"
-    class Meta :
         ordering = ['-created_at']
         
     code = models.PositiveIntegerField(unique=True)
@@ -39,7 +38,7 @@ class VendorCode(models.Model):
 
 class Shop (models.Model):
     class Meta:
-        verbose_name_plural = "Shops | فروشگاه ها"
+        verbose_name_plural = "Shops | فروشگاه‌ها"
 
     vendor = models.OneToOneField(Vendors , on_delete=models.CASCADE)
     name = models.CharField(max_length=50)

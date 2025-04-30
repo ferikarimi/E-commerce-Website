@@ -3,6 +3,20 @@ from rest_framework.permissions import BasePermission
 from .models import Vendors
 
 
+
+
+class IsVendorOrManager(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated :
+            return False
+        try :
+            vendor = Vendors.objects.get(user=request.user)
+            return vendor.role in ['owner','manager']
+        except Vendors.DoesNotExist :
+            return False
+
+
+
 class IsVendorOwner (permissions.BasePermission):
     def has_permission(self, request, view):
         try :

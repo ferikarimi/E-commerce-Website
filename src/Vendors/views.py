@@ -1,15 +1,22 @@
 from rest_framework.response import Response
-from .serializers import VendorRegisterSerializer , VendorProfileSerializer , VendorShopSerializer , VendorCodeSerializer , RegisterManagerSerializer , ManagerSerializer
-from rest_framework.permissions import IsAuthenticated , IsAdminUser
-from .models import Vendors , Shop , VendorCode
+from .serializers import VendorRegisterSerializer , VendorProfileSerializer , VendorShopSerializer , VendorCodeSerializer , RegisterManagerSerializer , ManagerSerializer , AllShopSerializer , SingleShopSerializer , ShowOneShopProductsSerializer
+from rest_framework.permissions import IsAuthenticated , IsAdminUser , AllowAny
+from .models import Vendors , VendorCode 
 from rest_framework.views import APIView
-from .permissions import IsAuthenticatedVendor 
+from .permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator
 from django.shortcuts import get_object_or_404
-from Accounts.models import User
+from Products.models import Shop ,Product
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics
+
+
 
 
 
 class RegisterVendor (APIView):
+    """
+        register a vendor and create a single shop for vendor
+    """
     permission_classes = [IsAuthenticated]
 
     def post (self , request):
@@ -27,8 +34,10 @@ class RegisterVendor (APIView):
         return Response(serializer.errors , status=400)
 
 
-
 class VendorProfile(APIView):
+    """
+        get and update vendor profile
+    """
     permission_classes = [IsAuthenticatedVendor]
 
     def get (self , request):
@@ -45,8 +54,10 @@ class VendorProfile(APIView):
         return Response(serializer.errors , status=400)
 
 
-
 class VendorShop(APIView):
+    """
+        get and update vendor`s shop
+    """
     permission_classes = [IsAuthenticatedVendor]
 
     def get(self, request):
@@ -66,6 +77,9 @@ class VendorShop(APIView):
 
 
 class VendorCodeView (APIView):
+    """
+        admin can add a number for register a vendor
+    """
     permission_classes = [IsAdminUser]
 
     def get (self , request):
@@ -79,10 +93,12 @@ class VendorCodeView (APIView):
             serializer.save()
             return Response (serializer.data , status=201)
         return Response (serializer.errors, status=400)
-    
 
 
 class RegisterManager (APIView):
+    """
+        vendor can employee manager and operator
+    """
     permission_classes = [IsAuthenticatedVendor]
 
     def get (self , request):
@@ -105,6 +121,7 @@ class RegisterManager (APIView):
         vendor.user.save()
         vendor.delete()
         return Response({"message": "فروشنده با موفقیت حذف شد."}, status=200)
+    
 
 
 
@@ -118,7 +135,90 @@ class RegisterManager (APIView):
 
 
 
-# class RegisterOperator (APIView):
-#     permission_classes = [IsAuthenticatedVendor]
 
-#     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class ShopPagination (PageNumberPagination):
+    """
+        pagination all shop page
+    """
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 12
+    
+
+class AllShopView(generics.ListAPIView):
+    """
+        get all shop
+    """
+    permission_classes = [AllowAny]
+    shops = Shop.objects.all()
+    serializer_class = AllShopSerializer
+    pagination_class = ShopPagination
+
+    def get_queryset(self):
+        shops = Shop.objects.all()
+        sort_by = self.request.query_params.get('sort')
+
+        if sort_by == 'badseller':
+            shops = shops.order_by('product_sold_count')
+
+        elif sort_by == 'bestseller':
+            shops = shops.order_by('-product_sold_count')
+
+        elif sort_by == 'oldest':
+            shops = shops.order_by('created_at')
+        
+        else :
+            shops = shops.order_by('-created_at')
+        
+        return shops
+
+
+class SingleShopView(APIView):
+    """
+        show single shop detail
+    """
+    permission_classes = [AllowAny]
+
+    def get (self , request , id):
+        shop = get_object_or_404(Shop , id=id)
+        serializer = SingleShopSerializer (shop)
+        return Response (serializer.data , status=200)
+
+
+class GetShopProductView (APIView):
+    """
+        show products of shop
+    """
+    permission_classes = [AllowAny]
+
+    def get (self , request , id):
+        shop = get_object_or_404(Shop ,id=id)
+        products = Product.objects.filter(store_name=shop)
+        serializer = ShowOneShopProductsSerializer (products , many=True)
+        return Response (serializer.data , status=200)
+    
+
+
+class SearchShop(APIView):
+    """
+        search shop by 'name','field'
+    """
+    pass

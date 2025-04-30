@@ -3,9 +3,8 @@ from Vendors.models import  Vendors , VendorCode , Shop
 from Accounts.models import User
 from phonenumber_field.serializerfields import PhoneNumberField
 from django.shortcuts import get_object_or_404
+from Products.models import Shop,Product
 import jdatetime
-
-
 
 
 
@@ -24,7 +23,6 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
         self.context['vendor_code_obj'] = code_obj
         return value
     
-
     def create(self, validated_data):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated :
@@ -58,14 +56,6 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
         return vendor
 
 
-
-# {
-#    "vendor_code": 1111,
-#    "shop_name": "vendor1_shop",
-#    "shop_address": "shiraz"
-# }
-
-
 class VendorProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
@@ -82,7 +72,6 @@ class VendorProfileSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['username' , 'email' ,'role' , 'created_at' ,'phone_number' , 'created_at_shamsi' ]
 
-
     def get_created_at_shamsi (self , obj):
         if obj.created_at :
             created_at = obj.created_at
@@ -90,8 +79,6 @@ class VendorProfileSerializer(serializers.ModelSerializer):
             return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
         return None
 
-
-    
     def update (self , instance , validated_data):
         user_data = validated_data.pop('user',{})
 
@@ -106,12 +93,7 @@ class VendorProfileSerializer(serializers.ModelSerializer):
         if 'last_name' in user_data :
             user.last_name = user_data['last_name']
         user.save()
-
         return instance
-
-
-
-
 
 
 class VendorShopSerializer(serializers.ModelSerializer):
@@ -119,19 +101,14 @@ class VendorShopSerializer(serializers.ModelSerializer):
 
     class Meta :
         model = Shop
-        fields = [
-            'name','address','phone','description'
-        ]
+        fields = ['name','address','phone','description' ,'created_at_shamsi']
 
-
-
-
-
-
-
-
-
-
+    def get_created_at_shamsi (self , obj):
+        if obj.created_at :
+            created_at = obj.created_at
+            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
+            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+        return None
 
 
 
@@ -151,15 +128,6 @@ class VendorCodeSerializer(serializers.ModelSerializer):
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
             return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
         return None
-
-
-
-
-
-
-
-
-
 
 
 class RegisterManagerSerializer (serializers.ModelSerializer):
@@ -191,17 +159,12 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
             role=role ,
             parent =owner_vendor ,
             )
-
-
         return vendor
-    
-
 
 
 class ManagerSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     created_at_shamsi = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Vendors
@@ -213,3 +176,31 @@ class ManagerSerializer(serializers.ModelSerializer):
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
             return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
         return None
+
+
+class AllShopSerializer(serializers.ModelSerializer):
+    created_at_shamsi = serializers.SerializerMethodField()
+
+    class Meta :
+        model = Shop
+        fields = ['id','name','address','phone','description','field','created_at','product_sold_count' , 'created_at_shamsi']
+
+    def get_created_at_shamsi (self , obj):
+        if obj.created_at :
+            created_at = obj.created_at
+            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
+            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+        return None
+
+
+class SingleShopSerializer (serializers.ModelSerializer):
+    class Meta :
+        model = Shop
+        fields = ['name','address','phone','description','field']
+
+
+class ShowOneShopProductsSerializer (serializers.ModelSerializer):
+    class Meta :
+        model = Product
+        fields = ['category','name','description','price','stock','image','id','final_price' ,'rating' , 'store_name']
+        read_only_fields = ['category','name','description','price','stock','image','id','final_price','rating','store_name']
