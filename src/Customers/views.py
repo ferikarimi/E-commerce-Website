@@ -5,7 +5,11 @@ from Customers.models import Addresses
 from rest_framework.permissions import IsAuthenticated
 
 
+
 class GetUserAddresses (APIView):
+    """
+        get, create, update and delete user`s addresses
+    """
     permission_classes = [IsAuthenticated]
 
     def get (self , request):
@@ -43,4 +47,4 @@ class GetUserAddresses (APIView):
             address.delete()
             return Response({'success':True , 'message':'address deleted !'})
         except Addresses.DoesNotExist :
-            return Response({'error':'address not found'}, status=404)      
+            return Response({'error':'address not found'}, status=404)

@@ -2,12 +2,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserRegisterSerializer , UserProfileSerializer
 from rest_framework.permissions import IsAuthenticated , AllowAny
+from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
 class RegisterUser(APIView):
+    """
+        register user with jwt
+    """
     permission_classes = [AllowAny]
 
     def post (self , request):
@@ -23,6 +27,9 @@ class RegisterUser(APIView):
 
 
 class UserProfile(APIView):
+    """
+        get and update user profile 
+    """
     permission_classes = [IsAuthenticated]
 
     def get (self , request):        
@@ -40,6 +47,9 @@ class UserProfile(APIView):
 
 
 class Logout (APIView):
+    """
+        log out user and blocked jwt token 
+    """
     permission_classes = [IsAuthenticated]
 
     def post (self , request):
@@ -54,6 +64,9 @@ class Logout (APIView):
 
 
 class CheckUserType (APIView):
+    """
+        check user type
+    """
     def get (self, request):
         return Response ({
             'username' : request.user.username ,

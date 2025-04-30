@@ -62,7 +62,7 @@ class EditProductSerializer (serializers.ModelSerializer):
         return instance
 
 
-class ShowSingleSerializer(serializers.ModelSerializer):
+class EditSingleProductSerializer(serializers.ModelSerializer):
     discount_amount = serializers.DecimalField(max_digits=6 , decimal_places=2 , required=False , allow_null=True)
 
     discount_percentage = serializers.DecimalField(max_digits=4 , decimal_places=2 , required=False , allow_null=True)
@@ -108,8 +108,9 @@ class AllProductSerializer (serializers.ModelSerializer):
 
 
 
-class SingleProductReviewsSerializer(serializers.ModelSerializer):
+class GetSingleProductReviewsSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
+
     class Meta :
         model = Reviews
         fields = ['customer_name','rating','comment','status']
@@ -117,9 +118,13 @@ class SingleProductReviewsSerializer(serializers.ModelSerializer):
     def get_customer_name (self , obj):
         return obj.customer.username
 
+class PostSingleProductReviewsSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Reviews
+        fields = ['rating','commeent','status']
     
 
 class SingleProductSerializer (serializers.ModelSerializer):
     class Meta :
         model = Product
-        fields =['category','name','description','price','image','stock','rating','store_name']
+        fields =['category','name','description','price','store_name','image','stock','rating']

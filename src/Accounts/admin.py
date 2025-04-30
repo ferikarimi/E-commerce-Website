@@ -16,10 +16,6 @@ class UserAdmin(admin.ModelAdmin):
         ),
     ]
 
-    readonly_fields = [
-        "password","last_login"
-    ]
+    readonly_fields = ["password","last_login"]
 
-    list_display = [
-        "username" , "is_customer", "is_superuser"
-        ]
+    list_display = ["username", "is_superuser" , "is_vendor" , "is_customer"]
