@@ -1,17 +1,24 @@
-from django.shortcuts import redirect , get_object_or_404
-from rest_framework.permissions import IsAuthenticated 
+from django.shortcuts import redirect , get_object_or_404 , get_list_or_404
+from rest_framework.permissions import IsAuthenticated , AllowAny
+from Vendors.permissions import IsAuthenticatedVendor 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from Products.models import Product 
 from Customers.models import Addresses
 from .models import OrderDetail , Orders
+from .serializers import UserOrderSerializer , VendorOrderSerializer 
+from Products.models import Shop
 import json
 
 # Create your views here.
 
 
-#___________________________ cart with cookies ______________________________________
+
 class Cart (APIView):
+    """
+        create, get and update shopping cart with cookies
+    """
+    permission_classes = [AllowAny]
     def get_cart (self , request):
         cart = request.COOKIES.get('cart')
         if cart :
@@ -85,21 +92,11 @@ class Cart (APIView):
         return response
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class FinalCart (APIView):
+    """
+        finalize shopping cart and register cart to database
+    """
+
     permission_classes = [IsAuthenticated]
 
     def get_cart (self , request):
@@ -128,6 +125,9 @@ class FinalCart (APIView):
         
         address_id = request.data.get('address_id')
         address =get_object_or_404(Addresses , id=address_id , user=request.user)
+
+        if not address :
+            return Response({'error':'you dont choice any addresss'})
 
         total_price = 0
         for item in cart.values():
@@ -161,6 +161,59 @@ class FinalCart (APIView):
         return response
 
 
+class UserOrdersView (APIView):
+    """
+        get user orders 
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get (self , request):
+        user = request.user
+        orders = Orders.objects.filter(customer=user).order_by('-order_date')
+        serializer = UserOrderSerializer (orders , many=True)
+        return Response (serializer.data , status=200)
+    
+    def delete (self , request , id):
+        user = request.user
+        order = get_object_or_404(Orders , id=id , customer=user)
+        
+        if order.status in ['cancelled' , 'delivered'] :
+            return Response ({'error':'you can not cancelled an order that already cancelled or delivered'}, status=400)
+
+        order.status = 'cancelled'
+        order.save()
+        return Response({'message':'order cancelled successfully !'})
+
+
+class VendorOrdersView (APIView):
+    """
+        get shop`s orders and change order status
+    """
+    permission_classes = [IsAuthenticatedVendor]
+
+    def get (self , request):
+        vendor = request.user.vendors
+        vendor_products = Product.objects.filter(store_name__vendor=vendor)
+        order_detail = OrderDetail.objects.filter(product__in=vendor_products)
+        orders = Orders.objects.filter(order__in=order_detail).order_by('-order_date')
+
+        serializer = VendorOrderSerializer (orders , many=True)
+        return Response (serializer.data , status=200)
+    
+    def put (self , request , id):
+        vendor = request.user.vendors
+        shop = get_object_or_404(Shop , vendor=vendor)
+        order = get_object_or_404 (Orders , id=id)
+        access = OrderDetail.objects.filter(order=order , product__store_name=shop).exists()
+        if not access :
+            return Response({'error':'you can not access to this order!'} , status=403)
+        
+        serializer = VendorOrderSerializer(order , data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data , status=200)
+        return Response (serializer.errors , status=400)
+    
 
 
 
@@ -193,17 +246,35 @@ class FinalCart (APIView):
 
 
 
-#_____________________ cookie _________________________
-# def set_cookie(request):
-#     response = HttpResponse("cookie set!")
-#     response.set_cookie('username','djangoMaster')
-#     return response
 
-# def get_cookie(request):
-#     username = request.COOKIES.get('username','guest')
-#     return HttpResponse(f'hello {username}')
+# class UserOrderDetailView (APIView):
 
-# def delete_cookie(request):
-#     response = HttpResponse('cooki delete successfuly!')
-#     response.delete_cookie('username')
-#     return response
+#     def get (self , request , id):
+#         user = request.user
+#         order = Orders.objects.filter(customer=user)
+#         order_detail = OrderDetail.objects.filter(order=order , id=id)
+#         serilaizer = OrderDetailSerializer(order_detail)
+#         return Response (serilaizer.data , status=200)
+    
+
+# class UserSendRate (APIView):
+#     def post (self , request ,id):
+#         product = Product.objects.get(id=id)
+
+
+
+
+
+
+
+
+
+
+# class VendorOrderDetailView (APIView):
+
+#     def get (self , request , id):
+#         user = request.user
+#         order = Orders.objects.filter(customer=user)
+#         order_detail = OrderDetail.objects.filter(order=order , id=id)
+#         serilaizer = OrderDetailSerializer(order_detail)
+#         return Response (serilaizer.data , status=200)
