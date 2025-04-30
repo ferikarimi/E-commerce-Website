@@ -4,17 +4,17 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>سفارش‌های من</title>
+    <title>جزئیات سفارش</title>
 {% block content %}
 
 </head>
 <body>
 <div class="container">
-    <h1>سفارش‌های من</h1>
+    <h1>جزئیات سفارش</h1>
     
     <div id="message-box" class="alert"></div>
     
-    <div id="orders-container">
+    <div id="order-detail-container">
         <!-- سفارش‌ها اینجا نمایش داده می‌شوند -->
     </div>
     <a href="http://127.0.0.1:8000/register/user_panel/" class="return-btn w-25 mt-2">بازگشت</a>
@@ -28,7 +28,7 @@
         });
 
         function fetchOrders() {
-            fetch('/cart/user_orders/', {
+            fetch('/cart/user_order_detail/', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +51,7 @@
         }
 
         function renderOrders(orders) {
-            const container = document.getElementById('orders-container');
+            const container = document.getElementById('order-detail-container');
             
             if (orders.length === 0) {
                 container.innerHTML = '<div class="empty-orders">هنوز سفارشی ثبت نکرده‌اید.</div>';

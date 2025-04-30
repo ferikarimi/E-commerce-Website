@@ -1,82 +1,14 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
     <title>جزئیات محصول</title>
-    <style>
-      body {
-          font-family: sans-serif;
-          background: #f9f9f9;
-          direction: rtl;
-          padding: 20px;
-      }
-      .product-detail {
-          max-width: 500px;
-          margin: 50px auto;
-          background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          overflow: hidden;
-      }
-      .product-image {
-          width: 100%;
-          height: 300px;
-          object-fit: cover;
-      }
-      .product-info {
-          padding: 20px;
-      }
-      .product-info h1 {
-          margin: 0;
-          font-size: 24px;
-      }
-      .product-info p {
-          margin: 10px 0;
-          font-size: 16px;
-          color: #555;
-      }
-      .price {
-          color: #e91e63;
-          font-size: 20px;
-      }
-      .reviews {
-          margin-top: 30px;
-          background: #f9f9f9;
-          padding: 20px;
-          border-radius: 8px;
-      }
-      .reviews h2 {
-          margin-bottom: 10px;
-      }
-      .review-item {
-          border-bottom: 1px solid #ddd;
-          padding: 10px 0;
-      }
-      .review-item:last-child {
-          border-bottom: none;
-      }
-      .comment-form {
-          margin-top: 20px;
-      }
-      .comment-form textarea, .comment-form select {
-          width: 100%;
-          padding: 10px;
-          margin-bottom: 10px;
-          border-radius: 6px;
-          border: 1px solid #ddd;
-      }
-      .comment-form button {
-          padding: 10px 20px;
-          background-color: #e91e63;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-      }
-  </style>
+
 </head>
 <body>
-
+{% block content %}
 <!-- پیام‌ها اینجا نمایش داده می‌شوند -->
 <div id="message-box" class="alert d-none"></div>
 
@@ -110,8 +42,10 @@
     </form>
 </div>
 
-<a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
+<a href="/" class="return-btn w-100 mt-2">بازگشت</a>
+{% endblock %}
 
+{% block custom_script %}
 <script>
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -282,6 +216,6 @@
         }, 5000);
     }
 </script>
-
+{% endblock %}
 </body>
 </html>

@@ -39,8 +39,8 @@
     </div>
     <button type="submit" class="btn btn-primary w-100">ثبت نام</button>
     <div class="d-flex gap-2 mt-2">
-      <a href="http://127.0.0.1:8000/register/login/" class="btn btn-secondary w-50">حساب دارید ؟</a>
-      <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-50">بازگشت</a>
+      <a href="http://127.0.0.1:8000/register/login/" class="redirect-btn w-50">حساب دارید ؟</a>
+      <a href="/" class="return-btn w-50">بازگشت</a>
     </div>
   </form>
 </div>
@@ -85,7 +85,7 @@
         if (loginResponse.status === 200) {
           localStorage.setItem('access_token', loginResult.access);
           localStorage.setItem('refresh_token', loginResult.refresh);
-          window.location.href = '/register/home/';  // صفحه اصلی
+          window.location.href = '/';
         } else {
           errorBox.innerHTML = 'Login failed after registration.';
           errorBox.classList.remove('d-none');

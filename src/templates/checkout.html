@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -6,27 +8,10 @@
     <title>نهایی کردن خرید</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .form-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            background-color: #fff;
-        }
-        .address-item {
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .address-item:hover {
-            background-color: #f8f9fa;
-        }
-        .address-item.selected {
-            background-color: #e2f3e4;
-            border-left: 4px solid #28a745;
-        }
+
     </style>
 </head>
+{% block content %}
 <body class="bg-light">
 
 <div class="form-container">
@@ -50,11 +35,13 @@
     <button id="finalize-btn" class="btn btn-success w-100 py-2" onclick="finalizeOrder()">نهایی کردن خرید</button>
     <input type="hidden" id="selected-address">
 	<div class="d-flex gap-2 mt-2">
-		<a href="http://127.0.0.1:8000/register/address/" class="btn btn-secondary w-50">افزودن آدرس</a>
-		<a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-50">بازگشت</a>
+		<a href="http://127.0.0.1:8000/register/user_addresses/" class="btn btn-secondary w-50">افزودن آدرس</a>
+		<a href="/" class="return-btn w-50">بازگشت</a>
 	</div>
 </div>
+{% endblock %}
 
+{% block custom_script %}
 <script>
     const accessToken = localStorage.getItem('access_token');
     let selectedAddressId = null;
@@ -184,6 +171,6 @@
         }, 5000);
     }
 </script>
-
+{% endblock %}
 </body>
 </html>

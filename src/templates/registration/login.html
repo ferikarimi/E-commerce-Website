@@ -25,8 +25,8 @@
       </div>
       <button type="submit" class="btn btn-primary w-100">ورود</button>
       <div class="d-flex gap-2 mt-2">
-        <a href="http://127.0.0.1:8000/register/register/" class="btn btn-secondary w-50">حساب ندارید ؟</a>
-        <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-50">بازگشت</a>
+        <a href="http://127.0.0.1:8000/register/register/" class="redirect-btn w-50">حساب ندارید ؟</a>
+        <a href="/" class="return-btn w-50">بازگشت</a>
       </div>
     </form>
   </div>
@@ -56,7 +56,7 @@
       .then(({status, body}) => {
         if (status === 200) {
           localStorage.setItem("access_token", body.access);
-          window.location.href = "/register/home/";
+          window.location.href = "/";
         } else {
           let errorText = '';
           if (body.error) {

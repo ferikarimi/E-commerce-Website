@@ -7,105 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>صفحه فروشگاه</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
-    <style>
-        /* استایل‌های مربوط به نمایش محصولات */
-        .product-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-        }
 
-        .product-image {
-            width: 100%;
-            height: 180px;
-            object-fit: contain;
-            background: #f9f9f9;
-        }
-
-        .product-info {
-            padding: 10px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            text-align: center;
-        }
-
-        .product-info h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .product-info p {
-            font-size: 14px;
-            margin: 2px 0;
-        }
-
-        .product-buttons {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .product-buttons button {
-            font-size: 12px;
-        }
-
-        .product-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 10px;
-        }
-
-        /* تنظیم تعداد ستون‌ها با توجه به اندازه صفحه */
-        #productList {
-            display: grid;
-            grid-gap: 20px;
-        }
-
-        /* موبایل (۲ محصول در هر ردیف) */
-        @media (max-width: 576px) {
-            #productList {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* تبلت (۳ محصول در هر ردیف) */
-        @media (min-width: 577px) and (max-width: 992px) {
-            #productList {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* لپتاپ و بزرگتر (۴ محصول در هر ردیف) */
-        @media (min-width: 993px) {
-            #productList {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .alert {
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .d-none {
-            display: none;
-        }
-    </style>
 </head>
 {% block content %}
 <body>
@@ -113,10 +15,10 @@
         <!-- اطلاعات فروشگاه در اینجا نمایش داده میشه -->
     </div>
 
-    <div id="productList">
+    <div id="product-container">
         <!-- محصولات فروشگاه در اینجا نمایش داده میشه -->
     </div>
-    <a href="http://127.0.0.1:8000/register/all_shop/" class="btn btn-secondary w-25 mt-2">بازگشت</a>    
+    <a href="http://127.0.0.1:8000/register/all_shop/" class="return-btn w-25 mt-2">بازگشت</a>    
 {% endblock %}
 
 
@@ -125,6 +27,33 @@
     const pathParts = window.location.pathname.split('/');
     const shopId = pathParts[pathParts.length - 2];  // گرفتن ID از URL
     // درخواست اطلاعات فروشگاه از API
+
+
+    async function addToCart(productId) {
+	    try {
+	        const response = await fetch('http://127.0.0.1:8000/cart/cart/', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'Accept': 'application/json'
+	            },
+	            body: JSON.stringify({
+	                product_id: productId,
+	                quantity: 1 // تعداد پیشفرض که میخوای اضافه بشه
+	            })
+	        });
+		
+	        if (!response.ok) {
+	            throw new Error('خطا در افزودن به سبد خرید');
+	        }
+		
+	        const result = await response.json();
+	        alert('محصول به سبد خرید اضافه شد!');
+	    } catch (error) {
+	        console.error('Error adding to cart:', error);
+	        alert('مشکلی پیش آمده. لطفا دوباره تلاش کنید.');
+	    }
+	}
     async function fetchShopData() {
         try {
             const response = await fetch(`/vendors/single_shop/${shopId}/`);
@@ -149,16 +78,16 @@
             renderProducts(productsData);
         } catch (error) {
             console.error('خطا در دریافت محصولات:', error);
-            document.getElementById('productList').innerText = 'خطا در دریافت محصولات';
+            document.getElementById('product-container').innerText = 'خطا در دریافت محصولات';
         }
     }
     // نمایش محصولات با فرمت کارت
     function renderProducts(products) {
-        const productList = document.getElementById('productList');
-        productList.innerHTML = '';
+        const product_container = document.getElementById('product-container');
+        product_container.innerHTML = '';
         
         if (products.length === 0) {
-            productList.innerHTML = '<p>محصولی برای نمایش وجود ندارد.</p>';
+            product_container.innerHTML = '<p>محصولی برای نمایش وجود ندارد.</p>';
             return;
         }
         products.forEach(product => {
@@ -167,20 +96,21 @@
                     <img src="${product.image}" alt="${product.name}" class="product-image"/>
                     <div class="product-info">
                         <div>
-                            <h3>${product.name}</h3>
-                            <p>امتیاز: ${product.rating || 'نامشخص'}</p>
-                            <p>قیمت: ${product.final_price} تومان</p>
+                            <h3>نام : ${product.name}</h3>
+                            <p>امتیاز : ${product.rating || 'نامشخص'}</p>
+                            <p>قیمت : ${product.final_price} تومان</p>
                             ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
-                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
+                            <p>فروشگاه : ${product.store_name || 'نامشخص'}</p>
+                            <p>تعداد : ${product.stock}</p>
                         </div>
                         <div class="product-buttons">
-                            <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
-                            <a href="/product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
+                            <a href="addToCart(${product.id})" class="btn2">افزودن به سبد خرید</a>
+                            <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn">جزئیات محصول</a>
                         </div>
                     </div>
                 </div>
             `;
-            productList.innerHTML += productHtml;
+            product_container.innerHTML += productHtml;
         });
     }
     // نمایش اطلاعات فروشگاه
