@@ -1,21 +1,14 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
   <title>ویرایش کد فروشنده</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-  <style>
-    .form-container {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      background-color: #fff;
-      direction: rtl;
-    }
-  </style>
+
 </head>
+{% block content %}
 <body class="bg-light">
 
     <div class="form-container">
@@ -27,14 +20,16 @@
       <form id="vendor-code-form">
         <div class="mb-3">
           <label class="form-label">کد فروشنده</label>
-          <input type="text" class="form-control" name="code" required>
+          <input type="text" class="form-control ltr-input" name="code" required>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">ساخت کد جدید</button>
         <a href="http://127.0.0.1:8000/register/admin_panel/" class="btn btn-secondary w-100 mt-2">بازگشت به پنل</a>
       </form>
     </div>
+{% endblock %}
 
+{% block custom_script %}
 <script>
     const form = document.getElementById('vendor-code-form');
     const errorBox = document.getElementById('error-message');
@@ -72,5 +67,6 @@
       });
     });
   </script>
+{% endblock %}
 </body>
 </html>

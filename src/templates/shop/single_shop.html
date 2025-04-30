@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -105,6 +107,7 @@
         }
     </style>
 </head>
+{% block content %}
 <body>
     <div id="shopDetails">
         <!-- اطلاعات فروشگاه در اینجا نمایش داده میشه -->
@@ -113,92 +116,90 @@
     <div id="productList">
         <!-- محصولات فروشگاه در اینجا نمایش داده میشه -->
     </div>
-    <a href="http://127.0.0.1:8000/register/all_shop/" class="btn btn-secondary w-100 mt-2">بازگشت</a>    
+    <a href="http://127.0.0.1:8000/register/all_shop/" class="btn btn-secondary w-25 mt-2">بازگشت</a>    
+{% endblock %}
 
-    <script>
-        const pathParts = window.location.pathname.split('/');
-        const shopId = pathParts[pathParts.length - 2];  // گرفتن ID از URL
 
-        // درخواست اطلاعات فروشگاه از API
-        async function fetchShopData() {
-            try {
-                const response = await fetch(`/web/single_shop/${shopId}/`);
-                if (!response.ok) {
-                    throw new Error('مشکل در دریافت اطلاعات فروشگاه');
-                }
-                const data = await response.json();
-                displayShopData(data);
-            } catch (error) {
-                console.error('خطا:', error);
-                document.getElementById('shopDetails').innerText = 'خطا در دریافت اطلاعات فروشگاه';
+{% block custom_script %}
+<script>
+    const pathParts = window.location.pathname.split('/');
+    const shopId = pathParts[pathParts.length - 2];  // گرفتن ID از URL
+    // درخواست اطلاعات فروشگاه از API
+    async function fetchShopData() {
+        try {
+            const response = await fetch(`/vendors/single_shop/${shopId}/`);
+            if (!response.ok) {
+                throw new Error('مشکل در دریافت اطلاعات فروشگاه');
             }
+            const data = await response.json();
+            displayShopData(data);
+        } catch (error) {
+            console.error('خطا:', error);
+            document.getElementById('shopDetails').innerText = 'خطا در دریافت اطلاعات فروشگاه';
         }
-
-        // درخواست محصولات فروشگاه از API
-        async function fetchShopProducts() {
-            try {
-                const response = await fetch(`/web/get_shop_product/${shopId}/`);
-                if (!response.ok) {
-                    throw new Error('مشکل در دریافت محصولات فروشگاه');
-                }
-                const productsData = await response.json();
-                renderProducts(productsData);
-            } catch (error) {
-                console.error('خطا در دریافت محصولات:', error);
-                document.getElementById('productList').innerText = 'خطا در دریافت محصولات';
+    }
+    // درخواست محصولات فروشگاه از API
+    async function fetchShopProducts() {
+        try {
+            const response = await fetch(`/vendors/get_shop_product/${shopId}/`);
+            if (!response.ok) {
+                throw new Error('مشکل در دریافت محصولات فروشگاه');
             }
+            const productsData = await response.json();
+            renderProducts(productsData);
+        } catch (error) {
+            console.error('خطا در دریافت محصولات:', error);
+            document.getElementById('productList').innerText = 'خطا در دریافت محصولات';
         }
-
-        // نمایش محصولات با فرمت کارت
-        function renderProducts(products) {
-            const productList = document.getElementById('productList');
-            productList.innerHTML = '';
-            
-            if (products.length === 0) {
-                productList.innerHTML = '<p>محصولی برای نمایش وجود ندارد.</p>';
-                return;
-            }
-
-            products.forEach(product => {
-                const productHtml = `
-                    <div class="product-card">
-                        <img src="${product.image}" alt="${product.name}" class="product-image"/>
-                        <div class="product-info">
-                            <div>
-                                <h3>${product.name}</h3>
-                                <p>امتیاز: ${product.rating || 'نامشخص'}</p>
-                                <p>قیمت: ${product.final_price} تومان</p>
-                                ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
-                                <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
-                            </div>
-                            <div class="product-buttons">
-                                <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
-                                <a href="/product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
-                            </div>
+    }
+    // نمایش محصولات با فرمت کارت
+    function renderProducts(products) {
+        const productList = document.getElementById('productList');
+        productList.innerHTML = '';
+        
+        if (products.length === 0) {
+            productList.innerHTML = '<p>محصولی برای نمایش وجود ندارد.</p>';
+            return;
+        }
+        products.forEach(product => {
+            const productHtml = `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image"/>
+                    <div class="product-info">
+                        <div>
+                            <h3>${product.name}</h3>
+                            <p>امتیاز: ${product.rating || 'نامشخص'}</p>
+                            <p>قیمت: ${product.final_price} تومان</p>
+                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
+                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>
+                        </div>
+                        <div class="product-buttons">
+                            <a href="/add-to-cart/${product.id}/" class="btn btn-primary btn-sm btn-block mb-2">افزودن به سبد خرید</a>
+                            <a href="/product/${product.id}/" class="btn btn-outline-primary btn-sm btn-block">جزئیات محصول</a>
                         </div>
                     </div>
-                `;
-                productList.innerHTML += productHtml;
-            });
-        }
-
-        // نمایش اطلاعات فروشگاه
-        function displayShopData(shop) {
-            const shopDetails = document.getElementById('shopDetails');
-            shopDetails.innerHTML = `
-                <h1>اسم فروشگاه: ${shop.name}</h1>
-                <p>توضیحات: ${shop.description || 'ثبت نشده'}</p>
-                <p>آدرس: ${shop.address}</p>
-                <p>تلفن: ${shop.phone || 'ثبت نشده'}</p>
-                <p>نوع فروشگاه: ${shop.field || 'ثبت نشده'}</p>
-                <hr>
-                <h2>محصولات فروشگاه</h2>
+                </div>
             `;
-        }
-
-        // بارگذاری داده‌ها هنگام بارگذاری صفحه
-        fetchShopData();
-        fetchShopProducts();
-    </script>
+            productList.innerHTML += productHtml;
+        });
+    }
+    // نمایش اطلاعات فروشگاه
+    function displayShopData(shop) {
+        const shopDetails = document.getElementById('shopDetails');
+        shopDetails.innerHTML = `
+            <h1>اسم فروشگاه: ${shop.name}</h1>
+            <p>توضیحات: ${shop.description || 'ثبت نشده'}</p>
+            <p>آدرس: ${shop.address}</p>
+            <p>تلفن: ${shop.phone || 'ثبت نشده'}</p>
+            <p>نوع فروشگاه: ${shop.field || 'ثبت نشده'}</p>
+            <hr>
+            <h2>محصولات فروشگاه</h2>
+        `;
+    }
+    // بارگذاری داده‌ها هنگام بارگذاری صفحه
+    fetchShopData();
+    fetchShopProducts();
+</script>
+{% endblock %}
 </body>
 </html>

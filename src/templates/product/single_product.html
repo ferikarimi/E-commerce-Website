@@ -220,20 +220,34 @@
     function submitReview(productId) {
         const rating = document.getElementById('rating').value;
         const comment = document.getElementById('comment').value;
+        const token = localStorage.getItem('access_token');
         
-        if (!rating || !comment) {
-            showMessage('لطفاً همه فیلدها را پر کنید', 'warning');
+        // فقط بررسی می‌کنیم که نظر خالی نباشد
+        if (!comment) {
+            showMessage('لطفاً نظر خود را وارد کنید', 'warning');
             return;
         }
 
-        fetch(`/product/review/create/${productId}/`, {
+        // اگر کاربر امتیاز داده، بررسی می‌کنیم که بین 1 تا 5 باشد
+        if (rating && (rating < 1 || rating > 5)) {
+            showMessage('امتیاز باید بین 1 تا 5 باشد', 'warning');
+            return;
+        }
+
+        if (!token) {
+            showMessage('برای ثبت نظر باید وارد حساب کاربری خود شوید', 'danger');
+            return;
+        }
+
+        fetch(`/product/product_reviews/${productId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // اضافه کردن توکن به هدر
 
             },
             body: JSON.stringify({
-                rating: rating,
+                rating: rating || null,
                 comment: comment
             })
         })

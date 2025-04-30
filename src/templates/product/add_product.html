@@ -1,20 +1,14 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
   <title>افزودن محصول</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .form-container {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      background-color: #fff;
-    }
-  </style>
+
 </head>
+{% block content %}
 <body class="bg-light">
 
 <div class="form-container">
@@ -26,34 +20,37 @@
   <form id="add-product-form" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">دسته بندی</label>
-      <input type="number" class="form-control" name="category" required>
+      <input type="number" class="form-control ltr-input" name="category" required>
     </div>
     <div class="mb-3">
       <label class="form-label">نام محصول</label>
-      <input type="text" class="form-control" name="name" required>
+      <input type="text" class="form-control ltr-input" name="name" required>
     </div>
     <div class="mb-3">
       <label class="form-label">قیمت</label>
-      <input type="number" class="form-control" name="price" required step="0.01">
+      <input type="number" class="form-control ltr-input" name="price" required step="0.01">
     </div>
     <div class="mb-3">
       <label class="form-label">توضیحات محصول</label>
-      <textarea class="form-control" name="description" rows="3"></textarea>
+      <textarea class="form-control ltr-input" name="description" rows="3"></textarea>
     </div>
     <div class="mb-3">
       <label class="form-label">تعداد</label>
-      <input type="number" class="form-control" name="stock" required>
+      <input type="number" class="form-control ltr-input" name="stock" required>
     </div>
     <div class="mb-3">
       <label class="form-label">عکس</label>
-      <input type="file" class="form-control" name="image" accept="image/*">
+      <input type="file" class="form-control ltr-input" name="image" accept="image/*">
     </div>
     <button type="submit" class="btn btn-primary w-100">افزودن محصول</button>
     <a href="http://127.0.0.1:8000/register/vendor_panel/" class="btn btn-secondary w-100">بازکشت</a>
 
   </form>
 </div>
+{% endblock %}
 
+
+{% block custom_script %}
 <script>
   const form = document.getElementById('add-product-form');
   const successBox = document.getElementById('success-message');
@@ -99,5 +96,6 @@
     });
   });
 </script>
+{% endblock %}
 </body>
 </html>

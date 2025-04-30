@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>سفارش‌های من</title>
+{% block content %}
+
+</head>
+<body>
+<div class="container">
+    <h1>سفارش‌های من</h1>
+    
+    <div id="message-box" class="alert"></div>
+    
+    <div id="orders-container">
+        <!-- سفارش‌ها اینجا نمایش داده می‌شوند -->
+    </div>
+    <a href="http://127.0.0.1:8000/register/user_panel/" class="btn btn-secondary w-25 mt-2">بازگشت</a>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchOrders();
+        });
+
+        function fetchOrders() {
+            fetch('/cart/user_orders/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('مشکل در دریافت سفارش‌ها');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderOrders(data);
+            })
+            .catch(error => {
+                showMessage(error.message, 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('orders-container');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-orders">هنوز سفارشی ثبت نکرده‌اید.</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            orders.forEach(order => {
+                console.log('Order:', order);
+
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                // تعیین کلاس وضعیت سفارش
+                let statusClass = '';
+                let statusText = '';
+                switch(order.status) {
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'در انتظار پرداخت';
+                        break;
+                    case 'processing':
+                        statusClass = 'status-processing';
+                        statusText = 'در حال پردازش';
+                        break;
+                    case 'delivered':
+                        statusClass = 'status-delivered';
+                        statusText = 'تحویل داده شده';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        statusText = 'لغو شده';
+                        break;
+
+                    case 'shipped':
+                        statusClass = 'status-shipped';
+                        statusText = 'درحال ارسال';
+                        break;
+
+                    default:
+                        statusClass = 'status-pending';
+                        statusText = order.status;
+                }
+                
+                // تاریخ سفارش
+                const orderDate = new Date(order.order_date);
+                const formattedDate = orderDate.toLocaleDateString('fa-IR');
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id">سفارش شماره: ${order.id}</span>
+                            <span class="order-date"> - تاریخ: ${formattedDate}</span>
+                        </div>
+                        <span class="order-status ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="order-details">
+                        <p>آدرس تحویل: ${order.address}</p>
+                        <p>مبلغ کل: <span class="price">${order.total_price.toLocaleString('fa-IR')} تومان</span></p>
+                        ${order.discount_price ? `<p>تخفیف: <span class="price">${order.discount_price.toLocaleString('fa-IR')} تومان</span></p>` : ''}
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button 
+                            class="cancel-btn" 
+                            data-order-id="${order.id}"
+                            ${order.status === 'delivered' || order.status === 'cancelled' || order.status === 'shipped' ? 'disabled' : ''}
+                            onclick="cancelOrder(${order.id})">
+                            لغو سفارش
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(orderCard);
+            });
+        }
+
+        function cancelOrder(orderId) {
+            if (!orderId) {
+                showMessage('شناسه سفارش نامعتبر است', 'danger');
+                return;
+            }
+            if (!confirm('آیا از لغو این سفارش مطمئن هستید؟')) {
+                return;
+            }
+            
+            fetch(`/cart/user_orders/${orderId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('مشکل در لغو سفارش');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showMessage('سفارش با موفقیت لغو شد', 'success');
+                fetchOrders(); // بارگذاری مجدد سفارش‌ها
+            })
+            .catch(error => {
+                showMessage(error.message, 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.className = `alert alert-${type}`;
+            messageBox.style.display = 'block';
+            
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+{% endblock %}
+</body>
+</html>

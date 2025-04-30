@@ -1,20 +1,16 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
   <title>آدرس‌ها</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .form-container {
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      background-color: #fff;
-    }
-  </style>
+
 </head>
+{% block content %}
+
+
 <body class="bg-light" >
 
 <div class="form-container">
@@ -26,11 +22,11 @@
   <form id="address-form" class="mb-4">
     <div class="mb-3">
       <label class="form-label">شهر</label>
-      <input type="text" class="form-control" name="city" required>
+      <input type="text" class="form-control ltr-input" name="city" required>
     </div>
     <div class="mb-3">
       <label class="form-label">آدرس</label>
-      <textarea class="form-control" name="address" rows="2" required></textarea>
+      <textarea class="form-control ltr-input" name="address" rows="2" required></textarea>
     </div>
 
     <button type="submit" id="add-btn" class="btn btn-success w-100">افزودن آدرس</button>
@@ -41,14 +37,13 @@
 
 </form>
 
-  </form>
-
-  <!-- لیست آدرس‌ها -->
   <ul id="address-list" class="list-group">
-    <!-- آدرس‌ها در اینجا نمایش داده می‌شوند -->
+
   </ul>
 </div>
+{% endblock %}
 
+{% block custom_script %}
 <script>
   const addressForm = document.getElementById('address-form');
   const addressList = document.getElementById('address-list');
@@ -84,8 +79,8 @@
         <div>
           <strong>${addr.city}</strong><br>${addr.address}
         </div>
-        <button class="btn btn-danger btn-sm" onclick="deleteAddress(${addr.id})">Delete</button>
-        <button class="btn btn-primary btn-sm me-2" onclick="editAddress(${addr.id}, '${addr.city}', '${addr.address}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAddress(${addr.id})">حذف آدرس</button>
+        <button class="btn btn-primary btn-sm me-2" onclick="editAddress(${addr.id}, '${addr.city}', '${addr.address}')">ویرایش</button>
 
       `;
       addressList.appendChild(li);
@@ -203,6 +198,6 @@
     messageBox.classList.remove('d-none');
   }
 </script>
-
+{% endblock %}
 </body>
 </html>

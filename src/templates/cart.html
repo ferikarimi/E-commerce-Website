@@ -1,54 +1,15 @@
+{% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>سبد خرید</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            background-color: #f8f9fa;
-        }
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #aaa;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-        }
-        .total {
-            font-weight: bold;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-        .cart-actions button {
-            margin: 0 2px;
-            padding: 4px 8px;
-            cursor: pointer;
-        }
-        .checkout-button {
-            padding: 10px 20px;
-            background-color: green;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 5px;
-            display: inline-block;
-        }
-        .login-alert {
-            color: red;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
+
 </head>
 <body>
+{% block content %}
 
     <h1>سبد خرید شما</h1>
 
@@ -63,7 +24,7 @@
             </tr>
         </thead>
         <tbody id="cart-body">
-            <!-- آیتم‌های سبد خرید اینجا اضافه میشه -->
+
         </tbody>
     </table>
 
@@ -72,28 +33,31 @@
     <div id="checkout" style="margin-top: 20px; display: none;">
         <a href="#" class="checkout-button" id="checkout-btn">نهایی کردن خرید</a>
         <div id="login-alert" class="login-alert">برای نهایی کردن خرید باید وارد حساب کاربری خود شوید.</div>
-		<a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-100 mt-2">بازگشت</a>
+		<a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-20 mt-2">بازگشت</a>
     </div>
 
     <p id="empty-cart" style="display: none;">سبد خرید شما خالی است.</p>
+{% endblock %}
 
+{% block custom_script %}
     <script>
-        const accessToken = localStorage.getItem('access_token');
+        // const accessToken = localStorage.getItem('access_token');
         const checkoutBtn = document.getElementById('checkout-btn');
         const loginAlert = document.getElementById('login-alert');
 
-        // تابع بررسی لاگین و هدایت به صفحه لاگین در صورت نیاز
         function checkAuthAndProceed(e) {
-            if (!accessToken) {
-                e.preventDefault();
-                loginAlert.style.display = 'block';
-                // هدایت به صفحه لاگین با ذخیره آدرس بازگشت
-                window.location.href = "/register/login/";
+            e.preventDefault();
+            const accessToken = localStorage.getItem('access_token');
+                
+            if (accessToken) {
+                window.location.href = "http://127.0.0.1:8000/register/checkout/";
             } else {
-				window.location.href = "http://127.0.0.1:8000/register/checkout/";
-			}
-            // اگر توکن وجود دارد، اجازه ادامه کار داده می‌شود
+                window.location.href = "http://127.0.0.1:8000/register/login/";
+            }
         }
+
+
+
 
         // بارگذاری سبد خرید بدون نیاز به احراز هویت
         document.addEventListener('DOMContentLoaded', function() {
@@ -181,6 +145,6 @@
             }
         }
     </script>
-
+{% endblock %}
 </body>
 </html>

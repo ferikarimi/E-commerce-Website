@@ -1,84 +1,79 @@
+{% extends 'base.html' %}
 <!DOCTYPE html>
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
   <title>صفحه ورود</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .form-container {
-      max-width: 500px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      background-color: #fff;
-    }
-  </style>
 </head>
-<body class="bg-light">
+{% block content %}
+  <body class="bg-light">
 
-<div class="form-container">
-  <h2 class="mb-4 text-center">ورود</h2>
+  <div class="form-container">
+    <h2 class="mb-4 text-center">ورود</h2>
 
-  <div id="error-message" class="alert alert-danger d-none"></div>
+    <div id="error-message" class="alert alert-danger d-none"></div>
 
-  <form id="login-form">
-    <div class="mb-3">
-      <label class="form-label">نام کاربری</label>
-      <input type="username" class="form-control" name="username" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">رمز عبور</label>
-      <input type="password" class="form-control" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary w-100">ورود</button>
-    <div class="d-flex gap-2 mt-2">
-      <a href="http://127.0.0.1:8000/register/register/" class="btn btn-secondary w-50">حساب ندارید ؟</a>
-      <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-50">بازگشت</a>
-    </div>
-  </form>
-</div>
+    <form id="login-form">
+      <div class="mb-3">
+        <label class="form-label">نام کاربری</label>
+        <input type="username" class="form-control ltr-input" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">رمز عبور</label>
+        <input type="password" class="form-control ltr-input" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">ورود</button>
+      <div class="d-flex gap-2 mt-2">
+        <a href="http://127.0.0.1:8000/register/register/" class="btn btn-secondary w-50">حساب ندارید ؟</a>
+        <a href="http://127.0.0.1:8000/register/home/" class="btn btn-secondary w-50">بازگشت</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
 
-<script>
-  const form = document.getElementById('login-form');
-  const errorBox = document.getElementById('error-message');
+{% block custom_script %}
+  <script>
+    const form = document.getElementById('login-form');
+    const errorBox = document.getElementById('error-message');
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    const formData = new FormData(form);
-    const data = {};
-    formData.forEach((value, key) => { data[key] = value });
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => { data[key] = value });
 
-    fetch('/api/token/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+      fetch('/api/token/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
 
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => response.json().then(json => ({status: response.status, body: json})))
-    .then(({status, body}) => {
-      if (status === 200) {
-        localStorage.setItem("access_token", body.access);
-        window.location.href = "/register/home/";
-      } else {
-        let errorText = '';
-        if (body.error) {
-          errorText = body.error;
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json().then(json => ({status: response.status, body: json})))
+      .then(({status, body}) => {
+        if (status === 200) {
+          localStorage.setItem("access_token", body.access);
+          window.location.href = "/register/home/";
         } else {
-          errorText = 'نام کاربری یا رمز عبور اشتباه است.';
+          let errorText = '';
+          if (body.error) {
+            errorText = body.error;
+          } else {
+            errorText = 'نام کاربری یا رمز عبور اشتباه است.';
+          }
+          errorBox.innerHTML = errorText;
+          errorBox.classList.remove('d-none');
         }
-        errorBox.innerHTML = errorText;
+      })
+      .catch(error => {
+        errorBox.innerHTML = 'Something went wrong.';
         errorBox.classList.remove('d-none');
-      }
-    })
-    .catch(error => {
-      errorBox.innerHTML = 'Something went wrong.';
-      errorBox.classList.remove('d-none');
+      });
     });
-  });
-</script>
+  </script>
+{% endblock %}
 </body>
 </html>
