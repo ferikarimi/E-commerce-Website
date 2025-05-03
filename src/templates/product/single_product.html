@@ -1,55 +1,65 @@
 {% extends 'base.html' %}
-
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <title>جزئیات محصول</title>
-
-</head>
-<body>
+{% load static %}
+{% block title %}جزئیات محصول{% endblock %}
 {% block content %}
-<!-- پیام‌ها اینجا نمایش داده می‌شوند -->
-<div id="message-box" class="alert d-none"></div>
 
-<div class="product-detail" id="product-detail">
-    <!-- جزئیات محصول اینجا لود میشه -->
-</div>
+<div class="container my-4">
+    <!-- پیام‌های سیستمی -->
+    <div id="message-box" class="alert alert-dismissible fade show d-none">
+        <span id="message-text"></span>
+        <button type="button" class="btn-close" onclick="dismissMessage()"></button>
+    </div>
 
-<div class="reviews" id="reviews">
-    <!-- کامنت ها اینجا لود میشه -->
-</div>
+    <!-- بخش محصول -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body" id="product-detail">
+                    <!-- محتوای محصول اینجا لود می‌شود -->
+                </div>
+            </div>
 
-<div class="comment-form" id="comment-form">
-    <h2>کامنت خود را بنویسید</h2>
-    <form id="reviewForm">
-        <div class="form-group">
-            <label for="rating">امتیاز:</label>
-            <select name="rating" id="rating" required>
-                <option value="">انتخاب کنید</option>
-                <option value="1">1 ستاره</option>
-                <option value="2">2 ستاره</option>
-                <option value="3">3 ستاره</option>
-                <option value="4">4 ستاره</option>
-                <option value="5">5 ستاره</option>
-            </select>
+            <!-- بخش نظرات -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">نظرات کاربران</h4>
+                </div>
+                <div class="card-body" id="reviews">
+                    <!-- نظرات اینجا لود می‌شود -->
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="comment">نظر شما:</label>
-            <textarea name="comment" id="comment" required></textarea>
+
+        <!-- فرم ارسال نظر -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">ثبت نظر جدید</h4>
+                </div>
+                <div class="card-body">
+                    <form id="reviewForm">
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">متن نظر:</label>
+                            <textarea class="form-control" id="comment" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">ارسال نظر</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <button type="submit">ارسال کامنت</button>
-    </form>
+    </div>
+
+    <div class="mt-3">
+        <a href="/" class="return-btn w-100 mt-2">بازگشت</a>
+    </div>
 </div>
 
-<a href="/" class="return-btn w-100 mt-2">بازگشت</a>
 {% endblock %}
 
 {% block custom_script %}
 <script>
-
     document.addEventListener('DOMContentLoaded', () => {
-
         const productIdMatch = window.location.pathname.match(/\/single_product\/(\d+)\/?$/);
         const productId = productIdMatch ? productIdMatch[1] : null;
         
@@ -57,94 +67,89 @@
             showMessage('محصول یافت نشد', 'danger');
             return;
         }
+        
         fetchProductDetails(productId);
         fetchReviews(productId);
         setupReviewForm(productId);
     });
 
-    function fetchProductDetails(productId) {
-        fetch(`/product/single_product/${productId}/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('مشکل در دریافت اطلاعات محصول');
-            }
-            return response.json();
-        })
-        .then(product => {
-            renderProductDetails(product);
-        })
-        .catch(error => {
-            showMessage(error.message, 'danger');
-            console.error('Error:', error);
-        });
-    }
-
     function renderProductDetails(product) {
         const container = document.getElementById('product-detail');
         container.innerHTML = `
-            <img src="${product.image || 'https://via.placeholder.com/500x300'}" alt="${product.name}" class="product-image">
-            <div class="product-info">
-                <h2>نام محصول : ${product.name}</h2>
-                <p class="price">قیمت : ${product.price} تومان</p>
-                <p>موجودی : ${product.stock}</p>
-                <p>امتیاز : ${product.rating} / 5</p>
-                <p>دسته‌بندی : ${product.category}</p>
-                <p>فروشگاه : ${product.store_name}</p>
-                <p>توضیحات محصول : ${product.description}</p>
+            <div class="row">
+                <div class="col-md-5 mb-3 mb-md-0">
+                    <img src="${product.image || '{% static "images/default-product.png" %}'}" 
+                         alt="${product.name}" 
+                         class="img-fluid rounded border"
+                         style="max-height: 300px; width: auto;">
+                </div>
+                <div class="col-md-7">
+                    <h2 class="fw-bold">${product.name}</h2>
+                    <p>امتیاز : ${product.rating}</p>
+                    <p>دسته بندی : ${product.category}</p>
+                    <p>قیمت : ${product.price} تومان</p>
+                    <p>تعداد : ${product.stock}</p>
+                    <p class="text-muted mb-4">توضیحات : ${product.description || 'توضیحاتی برای این محصول ثبت نشده است.'}</p>
+                    <button class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-cart-plus me-2"></i> افزودن به سبد</button>
+                </div>
             </div>
         `;
     }
 
-    function fetchReviews(productId) {
-        fetch(`/product/product_reviews/${productId}/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('مشکل در دریافت نظرات');
-            }
-            return response.json();
-        })
-        .then(reviews => {
-            renderReviews(reviews);
-        })
-        .catch(error => {
-            showMessage(error.message, 'warning');
-            console.error('Error loading reviews:', error);
-        });
-    }
-
     function renderReviews(reviews) {
         const container = document.getElementById('reviews');
-        container.innerHTML = '<h2>نظرات کاربران</h2>';
         
-        if (reviews && reviews.length > 0) {
-            reviews.forEach(review => {
-                container.innerHTML += `
-                    <div class="review-item">
-                        <p><strong> کاربر : ${review.customer_name || 'کاربر ناشناس'}</strong> <p>
-                        <p>امتیاز محصول : ${review.rating} ستاره</p>
-                        <p>نظر کاربر : ${review.comment}</p>
-                    </div>
-                `;
-            });
-        } else {
-            container.innerHTML += '<p>هنوز نظری ثبت نشده است.</p>';
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center py-3">هنوز نظری ثبت نشده است.</p>';
+            return;
         }
+        
+        let html = '<div class="list-group list-group-flush">';
+        reviews.forEach(review => {
+            html += `
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>${review.customer_name || 'کاربر ناشناس'}</strong>
+                        <small class="text-muted">${new Date(review.created_at).toLocaleDateString('fa-IR')}</small>
+                    </div>
+                    <p class="mb-0">${review.comment}</p>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        container.innerHTML = html;
+    }
+
+    function fetchProductDetails(productId) {
+        fetch(`/product/single_product/${productId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('مشکل در دریافت اطلاعات محصول');
+                return response.json();
+            })
+            .then(product => renderProductDetails(product))
+            .catch(error => {
+                showMessage(error.message, 'danger');
+                console.error('Error:', error);
+            });
+    }
+
+    function fetchReviews(productId) {
+        fetch(`/product/product_reviews/${productId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('مشکل در دریافت نظرات');
+                return response.json();
+            })
+            .then(reviews => renderReviews(reviews))
+            .catch(error => {
+                showMessage(error.message, 'warning');
+                console.error('Error:', error);
+            });
     }
 
     function setupReviewForm(productId) {
         const form = document.getElementById('reviewForm');
-        
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             submitReview(productId);
@@ -152,24 +157,16 @@
     }
 
     function submitReview(productId) {
-        const rating = document.getElementById('rating').value;
-        const comment = document.getElementById('comment').value;
-        const token = localStorage.getItem('access_token');
-        
-        // فقط بررسی می‌کنیم که نظر خالی نباشد
+        const comment = document.getElementById('comment').value.trim();
+        const token = localStorage.getItem('access_token'); 
+
         if (!comment) {
             showMessage('لطفاً نظر خود را وارد کنید', 'warning');
             return;
         }
 
-        // اگر کاربر امتیاز داده، بررسی می‌کنیم که بین 1 تا 5 باشد
-        if (rating && (rating < 1 || rating > 5)) {
-            showMessage('امتیاز باید بین 1 تا 5 باشد', 'warning');
-            return;
-        }
-
         if (!token) {
-            showMessage('برای ثبت نظر باید وارد حساب کاربری خود شوید', 'danger');
+            showMessage('لطفاً ابتدا وارد حساب کاربری خود شوید', 'danger');
             return;
         }
 
@@ -177,13 +174,9 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // اضافه کردن توکن به هدر
-
+                'Authorization': `Bearer ${token}` 
             },
-            body: JSON.stringify({
-                rating: rating || null,
-                comment: comment
-            })
+            body: JSON.stringify({ comment })
         })
         .then(response => {
             if (!response.ok) {
@@ -192,29 +185,30 @@
             return response.json();
         })
         .then(data => {
-            showMessage('نظر شما با موفقیت ثبت شد', 'success');
             document.getElementById('reviewForm').reset();
-            fetchReviews(productId); // بارگذاری مجدد نظرات
+            showMessage('نظر شما با موفقیت ثبت شد.', 'success');
+            fetchReviews(productId);
         })
         .catch(error => {
-            const errorMsg = error.message || Object.values(error).join(', ') || 'خطا در ثبت نظر';
-            showMessage(errorMsg, 'danger');
+            const msg = error.detail || 'ارسال نظر با خطا مواجه شد.';
+            showMessage(msg, 'danger');
             console.error('Error:', error);
         });
     }
 
-    // نمایش پیام‌ها
-    function showMessage(message, type) {
-        const messageBox = document.getElementById('message-box');
-        messageBox.textContent = message;
-        messageBox.className = `alert alert-${type}`;
-        messageBox.classList.remove('d-none');
-        
-        // مخفی کردن خودکار پیام بعد از 5 ثانیه
-        setTimeout(() => {
-            messageBox.classList.add('d-none');
-        }, 5000);
+    function showMessage(message, type = 'info') {
+        const box = document.getElementById('message-box');
+        const text = document.getElementById('message-text');
+        box.classList.remove('d-none', 'alert-info', 'alert-danger', 'alert-warning', 'alert-success');
+        box.classList.add(`alert-${type}`);
+        text.textContent = message;
     }
+
+    function dismissMessage() {
+        const box = document.getElementById('message-box');
+        box.classList.add('d-none');
+    }
+
 </script>
 {% endblock %}
 </body>

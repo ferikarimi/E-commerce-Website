@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
-
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>صفحه فروشگاه</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
-
-</head>
+{% load static %}
+{% block title %}صفحه فروشگاه{% endblock %}
 {% block content %}
-<body>
+
+
+    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+        <input type="text" id="search-input" class="form-control w-50" placeholder="جستجو در محصولات..." />
+
+        <select id="sort-select" class="form-select w-25">
+            <option value="">مرتب‌سازی</option>
+            <option value="high_price">بیشترین قیمت</option>
+            <option value="low_price">کمترین قیمت</option>
+            <option value="most_stock">بیشترین تعداد</option>
+            <option value="least_stock">کمترین تعداد</option>
+        </select>
+    </div>
+
     <div id="shopDetails">
         <!-- اطلاعات فروشگاه در اینجا نمایش داده میشه -->
     </div>
@@ -28,8 +33,9 @@
     const shopId = pathParts[pathParts.length - 2];  // گرفتن ID از URL
     // درخواست اطلاعات فروشگاه از API
 
+	let allProducts = []; // ذخیره همه محصولات
 
-    async function addToCart(productId) {
+	async function addToCart(productId) {
 	    try {
 	        const response = await fetch('http://127.0.0.1:8000/cart/cart/', {
 	            method: 'POST',
@@ -75,7 +81,9 @@
                 throw new Error('مشکل در دریافت محصولات فروشگاه');
             }
             const productsData = await response.json();
-            renderProducts(productsData);
+            allProducts = productsData;
+            filterAndRenderProducts();
+
         } catch (error) {
             console.error('خطا در دریافت محصولات:', error);
             document.getElementById('product-container').innerText = 'خطا در دریافت محصولات';
@@ -100,11 +108,10 @@
                             <p>امتیاز : ${product.rating || 'نامشخص'}</p>
                             <p>قیمت : ${product.final_price} تومان</p>
                             ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
-                            <p>فروشگاه : ${product.store_name || 'نامشخص'}</p>
                             <p>تعداد : ${product.stock}</p>
                         </div>
                         <div class="product-buttons">
-                            <a href="addToCart(${product.id})" class="btn2">افزودن به سبد خرید</a>
+                            <button onclick="addToCart(${product.id})" class="btn2">افزودن به سبد خرید</button>
                             <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn">جزئیات محصول</a>
                         </div>
                     </div>
@@ -126,7 +133,31 @@
             <h2>محصولات فروشگاه</h2>
         `;
     }
+    function filterAndRenderProducts() {
+        const searchValue = document.getElementById("search-input").value.trim().toLowerCase();
+        const sortValue = document.getElementById("sort-select").value;
+
+        let filtered = allProducts.filter(product => 
+            product.name.toLowerCase().includes(searchValue)
+        );
+
+        if (sortValue === 'high_price') {
+            filtered.sort((a, b) => b.final_price - a.final_price);
+        } else if (sortValue === 'low_price') {
+            filtered.sort((a, b) => a.final_price - b.final_price);
+        } else if (sortValue === 'most_stock') {
+            filtered.sort((a, b) => b.stock - a.stock);
+        } else if (sortValue === 'least_stock') {
+            filtered.sort((a, b) => a.stock - b.stock);
+        }
+
+        renderProducts(filtered);
+    }
+
     // بارگذاری داده‌ها هنگام بارگذاری صفحه
+    document.getElementById('search-input').addEventListener('input', filterAndRenderProducts);
+    document.getElementById('sort-select').addEventListener('change', filterAndRenderProducts);
+
     fetchShopData();
     fetchShopProducts();
 </script>

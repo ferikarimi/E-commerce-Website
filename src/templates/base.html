@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- <title>{% block title %}فروشگاه آنلاین{% endblock %}</title> -->
+    <title>{% block title %}فروشگاه آنلاین{% endblock %}</title>
     <link rel="icon" href="{% static 'home/img/favicon.png' %}">
 
     <!-- External CSS -->
@@ -102,12 +102,13 @@
     }
     setInterval(updateDateTime, 1000);
     updateDateTime();
-
-    function logout() {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/register/home/";
-    }
+    
+	// توابع خارجی (بدون تغییر)
+	function logout() {
+	    localStorage.removeItem("access_token");
+	    localStorage.removeItem("refresh_token");
+	    window.location.href = "/";
+	}
 </script>
 
 {% block custom_script %}{% endblock %}
