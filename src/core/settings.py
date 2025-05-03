@@ -35,6 +35,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 'admin_interface',
+    # 'colorfield', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +60,10 @@ INSTALLED_APPS = [
     'Vendors',
     'Website',
 ]
-
+# X_FRAME_OPTIONS = 'SAMEORIGIN'
+# ADMIN_INTERFACE_INCLUDE_CSS = [
+#     'css/custom_admin.css',
+# ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -220,5 +225,3 @@ AUTH_USER_MODEL = 'Accounts.User'
 # celery settings
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = "redis://localhost:6379"
-
-

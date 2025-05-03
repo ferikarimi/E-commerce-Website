@@ -46,6 +46,6 @@ if settings.DEBUG:
 
 
 
-admin.site.site_header = "ONLINE SHOP ADMIN PANEL"
+# admin.site.site_header = "ONLINE SHOP ADMIN PANEL"
 admin.site.site_title = "ADMIN PANEL"
 admin.site.index_title = "WELCOME"
