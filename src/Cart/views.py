@@ -1,4 +1,4 @@
-from django.shortcuts import redirect , get_object_or_404 , get_list_or_404
+from django.shortcuts import redirect , get_object_or_404 
 from rest_framework.permissions import IsAuthenticated , AllowAny
 from Vendors.permissions import IsAuthenticatedVendor 
 from rest_framework.views import APIView
@@ -9,8 +9,6 @@ from .models import OrderDetail , Orders
 from .serializers import UserOrderSerializer , VendorOrderSerializer 
 from Products.models import Shop
 import json
-
-# Create your views here.
 
 
 
@@ -92,13 +90,11 @@ class Cart (APIView):
         return response
 
 
-class FinalCart (APIView):
+class CheckOutView (APIView):
     """
         finalize shopping cart and register cart to database
     """
-
     permission_classes = [IsAuthenticated]
-
     def get_cart (self , request):
         cart = request.COOKIES.get('cart')
         if cart :
@@ -140,14 +136,21 @@ class FinalCart (APIView):
             total_price = total_price ,
             discount_price = 0 ,
             )
-
-        for product_id in cart.keys():
-            product = get_object_or_404(Product , id=product_id)
+        
+        print('cart:', cart)
+        for product_id, item in cart.items():
+            product = get_object_or_404(Product , id=int(product_id))
+            print('product_id:', product_id)
+            print('item:', item)
 
             if product.stock < item['quantity'] :
                 return Response ({'message':f'not enugh stock for {product.name}'},status=400)
+            
+            print(f"quantity type: {type(item['quantity'])}, value: {item['quantity']}")
             product.stock -= item['quantity']
+            product.sold_count += item['quantity']
             product.save()
+            print(f"Updated product {product.id}: stock={product.stock}, sold_count={product.sold_count}")
 
             OrderDetail.objects.create(
                 product = product ,

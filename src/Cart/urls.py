@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Cart , FinalCart , VendorOrdersView , UserOrdersView
+from .views import Cart , CheckOutView , VendorOrdersView , UserOrdersView
 
 urlpatterns = [
     #_____________________ cookie _________________________
@@ -8,7 +8,7 @@ urlpatterns = [
     # path('delete_cookie/', delete_cookie, name='delete_cookie'),
 
     path('cart/', Cart.as_view() , name='add_edit_delete_item_cart'),
-    path('finalized_cart/', FinalCart.as_view() , name='finalized_cart'),
+    path('finalized_cart/', CheckOutView.as_view() , name='finalized_cart'),
 
     path('vendor_orders/', VendorOrdersView.as_view() , name='get_vendor_orders'),
     path('vendor_orders/<int:id>/', VendorOrdersView.as_view() , name='delete_vendor_orders'),
