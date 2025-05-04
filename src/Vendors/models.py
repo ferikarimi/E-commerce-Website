@@ -17,8 +17,9 @@ class Vendors (models.Model):
     role = models.CharField(max_length=10 , choices=CHOISE_FIELDS , default='owner')
     vendor_code = models.OneToOneField('VendorCode' , on_delete=models.SET_NULL , null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     parent = models.ForeignKey('self' , on_delete=models.SET_NULL , null=True , blank=True , related_name='vendor_member')
+    phone = PhoneNumberField(unique=True)
+
 
     def __str__(self):
         return self.user.username
@@ -43,7 +44,6 @@ class Shop (models.Model):
     vendor = models.OneToOneField(Vendors , on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=100)
-    phone = PhoneNumberField(null=True , blank=True)
     description = models.TextField(null=True , blank=True)
     field = models.CharField(max_length=25)
     created_at = models.DateTimeField(auto_now_add=True , null=True , blank=True)

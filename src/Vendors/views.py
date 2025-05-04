@@ -7,7 +7,8 @@ from .permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOpera
 from django.shortcuts import get_object_or_404
 from Products.models import Shop ,Product
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics
+from rest_framework import generics , filters
+from Products.views import ProductPagination
 
 
 
@@ -25,11 +26,9 @@ class RegisterVendor (APIView):
         
         serializer = VendorRegisterSerializer(data=request.data , context={'request':request})
         if serializer.is_valid():
-            vendor = serializer.save()
-            user = vendor.user
-            user.is_vendor = True
-            user.is_customer = False
-            user.save()
+            print("serializer is valid")
+            serializer.save()
+            print("user become vendor")
             return Response({'message':'vendor succeessfully registered !'} , status=201)
         return Response(serializer.errors , status=400)
 
@@ -121,56 +120,28 @@ class RegisterManager (APIView):
         vendor.user.save()
         vendor.delete()
         return Response({"message": "فروشنده با موفقیت حذف شد."}, status=200)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class ShopPagination (PageNumberPagination):
     """
         pagination all shop page
     """
-    page_size = 6
+    page_size = 3
     page_size_query_param = 'page_size'
-    max_page_size = 12
+    # max_page_size = 12
     
 
 class AllShopView(generics.ListAPIView):
     """
-        get all shop
+            get all shop
+        searching and sorting
     """
     permission_classes = [AllowAny]
     shops = Shop.objects.all()
     serializer_class = AllShopSerializer
     pagination_class = ShopPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name','address','field']
 
     def get_queryset(self):
         shops = Shop.objects.all()
@@ -203,10 +174,74 @@ class SingleShopView(APIView):
         return Response (serializer.data , status=200)
 
 
-class GetShopProductView (APIView):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class GetShopProductView (generics.ListAPIView):
     """
         show products of shop
+        sorting and searching
     """
+    serializer_class = [ShowOneShopProductsSerializer]
+    pagination_class = ProductPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name" , "category__name"]
+
+    def get_queryset(self):
+        shop_id = self.kwargs.get('id')
+        shop = get_object_or_404 (Shop , id=shop_id)
+        queryset = Product.objects.filter(store_name=shop)
+        
+        sort_by = self.request.query_params.get('sort')
+
+        if sort_by == 'cheap':
+            queryset = queryset.order_by('price')
+
+        elif sort_by == 'expensive':
+            queryset = queryset.order_by('-price')
+
+        elif sort_by == 'lowest_score':
+            queryset = queryset.order_by('rating')
+
+        elif sort_by == 'highest_score':
+            queryset = queryset.order_by('-rating')
+
+        elif sort_by == 'badseller':
+            queryset = queryset.order_by('sold_count')
+
+        elif sort_by == 'bestseller':
+            queryset = queryset.order_by('-sold_count')
+
+        elif sort_by == 'oldest':
+            queryset = queryset.order_by('created_at')
+        
+        else :
+            queryset = queryset.order_by('-created_at')
+        
+        return queryset
+
+
+
     permission_classes = [AllowAny]
 
     def get (self , request , id):
@@ -214,11 +249,3 @@ class GetShopProductView (APIView):
         products = Product.objects.filter(store_name=shop)
         serializer = ShowOneShopProductsSerializer (products , many=True)
         return Response (serializer.data , status=200)
-    
-
-
-class SearchShop(APIView):
-    """
-        search shop by 'name','field'
-    """
-    pass

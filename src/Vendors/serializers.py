@@ -32,27 +32,37 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
         code_obj = self.context['vendor_code_obj']
         if Vendors.objects.filter(vendor_code=code_obj).exists():
             raise serializers.ValidationError('this code is used!')
-        
+
         shop_name = validated_data.pop('shop_name')
         shop_address = validated_data.pop('shop_address')
         shop_field = validated_data.pop('shop_field')
 
+        print("Creating Vendor...")
         vendor = Vendors.objects.create(
+            phone=user.phone,
             user=user,
             vendor_code=code_obj,
             role='owner',
-
         )
+        print("Vendor created")
+        print("Creating shop...")
+        if not user.phone:
+            raise serializers.ValidationError('Phone number is required. Please complete your profile first.')
+
         Shop.objects.create(
             vendor=vendor,
             name=shop_name,
             address=shop_address,
-            phone = user.phone_number,
+            # phone = user.phone,
             field = shop_field ,
         )
+        print("Shop created")
     
         code_obj.is_used = True
         code_obj.save()
+        user.is_vendor = True
+        user.is_customer = False
+        user.save()
         return vendor
 
 
@@ -61,16 +71,16 @@ class VendorProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source='user.last_name')
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)
-    phone_number = PhoneNumberField(source='user.phone_number', read_only=True)
+    phone = PhoneNumberField(source='user.phone', read_only=True)
     birth_date = serializers.CharField(source='user.birth_date')
     created_at_shamsi = serializers.SerializerMethodField()
 
     class Meta:
         model = Vendors
         fields = [
-            'first_name' , 'last_name','username','email','role' , 'phone_number' ,'birth_date','created_at' , 'created_at_shamsi'
+            'first_name' , 'last_name','username','email','role' , 'phone' ,'birth_date','created_at' , 'created_at_shamsi'
         ]
-        read_only_fields = ['username' , 'email' ,'role' , 'created_at' ,'phone_number' , 'created_at_shamsi' ]
+        read_only_fields = ['username' , 'email' ,'role' , 'created_at' ,'phone' , 'created_at_shamsi' ]
 
     def get_created_at_shamsi (self , obj):
         if obj.created_at :
@@ -98,21 +108,24 @@ class VendorProfileSerializer(serializers.ModelSerializer):
 
 class VendorShopSerializer(serializers.ModelSerializer):
     created_at_shamsi = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
 
     class Meta :
         model = Shop
         fields = ['name','address','phone','description' ,'created_at_shamsi']
 
+    def get_phone (self , obj):
+        if obj.vendor :
+            return str(obj.vendor.phone)
+        return None
+
+
     def get_created_at_shamsi (self , obj):
         if obj.created_at :
             created_at = obj.created_at
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+            return jalili_data.strftime('%Y/%m/%d')
         return None
-
-
-
-
 
 
 class VendorCodeSerializer(serializers.ModelSerializer):
@@ -126,7 +139,7 @@ class VendorCodeSerializer(serializers.ModelSerializer):
         if obj.created_at :
             created_at = obj.created_at
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+            return jalili_data.strftime('%Y/%m/%d')
         return None
 
 
@@ -174,23 +187,33 @@ class ManagerSerializer(serializers.ModelSerializer):
         if obj.created_at :
             created_at = obj.created_at
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+            return jalili_data.strftime('%Y/%m/%d')
         return None
 
 
 class AllShopSerializer(serializers.ModelSerializer):
     created_at_shamsi = serializers.SerializerMethodField()
+    product_count = serializers.SerializerMethodField()
+    phone = serializers.CharField(source='vendor.phone' , read_only=True)
+
 
     class Meta :
         model = Shop
-        fields = ['id','name','address','phone','description','field','created_at','product_sold_count' , 'created_at_shamsi']
+        fields = ['id','name','address','phone','description','field','created_at','product_sold_count' , 'created_at_shamsi' , 'product_count']
 
     def get_created_at_shamsi (self , obj):
         if obj.created_at :
             created_at = obj.created_at
             jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
+            return jalili_data.strftime('%Y/%m/%d')
         return None
+    
+    def get_product_count (self , obj):
+        product_count = 0
+        products = Product.objects.filter(store_name=obj.id)
+        for product in products :
+            product_count += product.stock
+        return product_count
 
 
 class SingleShopSerializer (serializers.ModelSerializer):
