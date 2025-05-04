@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_page ,login_page  , user_profile_page , register_vendor_page , user_panel , user_addresses , vendor_profile_page , vendor_panel , add_product , shop_page , all_shop , vendor_product , edit_product , user_reviews , edit_shop , all_product , admin_panel , vendor_code , add_vendor_code , single_product_page , manager_panel , operator_panel , register_operator_or_manager , cart , checkout , thankyou , admin_profile , user_order , vendor_order
+from .views import register_page ,login_page  , user_profile_page , register_vendor_page , user_panel , user_addresses , vendor_profile_page , vendor_panel , add_product , shop_page , all_shop , vendor_product , edit_product , user_reviews , edit_shop , all_product , admin_panel , vendor_code , add_vendor_code , single_product_page , manager_panel , operator_panel , register_operator_or_manager , cart , checkout , thankyou , admin_profile , user_order , vendor_order , manage_reviews , product_rating
 
 urlpatterns = [
     #________________________________ user _____________________________________
@@ -7,7 +7,9 @@ urlpatterns = [
     path('user_addresses/', user_addresses, name='user-addresses'),
     path('user_reviews/', user_reviews, name='user-reviews'),
     path('profile/', user_profile_page, name='user-profile-page'),
-    path('user_order/', user_order, name='user-order-'),
+    path('user_order/', user_order, name='user-order'),
+    
+    path('product_rating/', product_rating, name='product-rating'),
     #____________________________________________________________________________
 
     #________________________________ vendor _____________________________________
@@ -18,6 +20,8 @@ urlpatterns = [
     path('register_operator_or_manager/', register_operator_or_manager, name='register-operator-or-manager'),
     path('manager_panel/', manager_panel, name='manager-panel'),
     path('operator_panel/', operator_panel, name='operator-panel'),
+
+    path('manage_reviews/', manage_reviews, name='manage-reviews'),
     #____________________________________________________________________________
 
     #_______________________________ registreation ______________________________

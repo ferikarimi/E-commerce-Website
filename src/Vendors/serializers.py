@@ -3,7 +3,7 @@ from Vendors.models import  Vendors , VendorCode , Shop
 from Accounts.models import User
 from phonenumber_field.serializerfields import PhoneNumberField
 from django.shortcuts import get_object_or_404
-from Products.models import Shop,Product
+from Products.models import Shop,Product,Reviews
 import jdatetime
 
 
@@ -216,14 +216,69 @@ class AllShopSerializer(serializers.ModelSerializer):
         return product_count
 
 
-class SingleShopSerializer (serializers.ModelSerializer):
-    class Meta :
-        model = Shop
-        fields = ['name','address','phone','description','field']
 
 
 class ShowOneShopProductsSerializer (serializers.ModelSerializer):
     class Meta :
         model = Product
-        fields = ['category','name','description','price','stock','image','id','final_price' ,'rating' , 'store_name']
-        read_only_fields = ['category','name','description','price','stock','image','id','final_price','rating','store_name']
+        fields = ['category','name','description','price','stock','image','id','final_price' ,'average_rating' , 'store_name']
+        read_only_fields = ['category','name','description','price','stock','image','id','final_price','average_rating','store_name']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class SingleShopSerializer (serializers.ModelSerializer):
+    phone = serializers.CharField(source='vendor.phone' , read_only=True)
+
+    class Meta :
+        model = Shop
+        fields = ['name','address','phone','description','field']
+
+
+
+
+class ManageReviewsSerializer (serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_image = serializers.ImageField(source='product.image', read_only=True)
+    customer_username = serializers.CharField(source='customer.username', read_only=True)
+
+    class Meta:
+        model = Reviews
+        fields = ['id','product','comment','status','product_name','product_image','customer_username']

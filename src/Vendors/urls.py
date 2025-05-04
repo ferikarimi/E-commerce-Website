@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import VendorProfile , RegisterVendor , VendorShop , VendorCodeView , RegisterManager , AllShopView , SingleShopView , GetShopProductView
+from .views import VendorProfile , RegisterVendor , VendorShop , VendorCodeView , RegisterManager , AllShopView , SingleShopView , GetShopProductView , ManageReviews
 from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
 
 
@@ -22,4 +22,8 @@ urlpatterns = [
 
 
     path('get_shop_product/<int:id>/' ,GetShopProductView.as_view() , name='shop_product'),
+
+    path('manage_reviews/' ,ManageReviews.as_view() , name='manage-reviews'),
+    path('manage_reviews/<int:id>/' ,ManageReviews.as_view() , name='manage-reviews'),
+
 ]

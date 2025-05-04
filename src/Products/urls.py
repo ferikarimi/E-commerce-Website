@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserReviews ,EditProduct , VendorsProduct , AddProduct , SearchProducts , ProductReviews , SingleProduct 
+from .views import UserReviews ,EditProduct , VendorsProduct , AddProduct , SearchProducts , ProductReviews , SingleProduct , SendRatingForProduct
 
 urlpatterns = [
     path('user_reviews/', UserReviews.as_view() , name='user_reviews'),
@@ -9,6 +9,9 @@ urlpatterns = [
     path('all_product/', SearchProducts.as_view() , name='all_product'),
     path('product_reviews/<int:id>/', ProductReviews.as_view() , name='product_reviews'),
     path('single_product/<int:id>/', SingleProduct.as_view() , name='single_product'),
+
+
+    path('send_rating_for_product/', SendRatingForProduct.as_view() , name='send-rating-for-product'),
 
 
     # path('search_product/', SearchProduct.as_view() , name='search_product'),

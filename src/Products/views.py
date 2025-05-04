@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from .serializers import ReviewsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , EditSingleProductSerializer , GetSingleProductReviewsSerializer , SingleProductSerializer , SearchProductSerializer , SendReviewsForProductSerializer , SendRatingForProductSerializer
+from .serializers import ReviewsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , EditSingleProductSerializer , GetSingleProductReviewsSerializer , SingleProductSerializer , SearchProductSerializer , SendReviewsForProductSerializer ,  SendRatingForProductSerializer , ShowProductForReviewsSerializer
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated 
@@ -7,7 +7,7 @@ from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVend
 from rest_framework.response import Response
 from .models import Reviews , Product
 from Vendors.models import Vendors , Shop 
-from Cart.models import OrderDetail
+from Cart.models import Orders , OrderDetail
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics , filters
 from Accounts.models import User
@@ -174,5 +174,34 @@ class ProductReviews(APIView):
         serializer = SendReviewsForProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(customer=customer ,product=product)
+            return Response(serializer.data , status=201)
+        return Response(serializer.errors , status=400)
+
+
+class SendRatingForProduct(APIView):
+    """
+        user can Register rate for the purchased product
+    """
+    permission_classes = [IsAuthenticated]
+    def get (self , request):
+        user = request.user
+        delivered_order = Orders.objects.filter(customer=user , status="delivered")
+        order_detail = OrderDetail.objects.filter(order__in=delivered_order)
+        purchased_products = [order.product for order in order_detail]
+
+        unrated_products = []
+        for product in purchased_products:
+            has_rated = Reviews.objects.filter(customer=user, product=product).exists()
+            if not has_rated:
+                unrated_products.append(product)
+
+
+        serializer = ShowProductForReviewsSerializer (unrated_products , many=True)
+        return Response (serializer.data , status=200)
+
+    def post(self , request):
+        serializer = SendRatingForProductSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data , status=201)
         return Response(serializer.errors , status=400)

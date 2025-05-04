@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Product , Reviews , Discount
 
+from django.db.models import Avg
+
+
 
 class ReviewsSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name' , read_only=True)
@@ -99,7 +102,7 @@ class SearchProductSerializer (serializers.ModelSerializer):
 
     class Meta :
         model = Product
-        fields = ['category','name','description','price','stock','image','id','final_price','rating','shop_name']
+        fields = ['category','name','description','price','stock','image','id','final_price','average_rating','shop_name']
         
     def get_final_price (self , obj):
         return obj.final_price()
@@ -126,7 +129,7 @@ class GetSingleProductReviewsSerializer(serializers.ModelSerializer):
 class SingleProductSerializer (serializers.ModelSerializer):
     class Meta :
         model = Product
-        fields =['category','name','description','price','store_name','image','stock','rating']
+        fields =['id','category','name','description','price','store_name','image','stock','average_rating']
 
 
 
@@ -163,11 +166,28 @@ class SendReviewsForProductSerializer(serializers.ModelSerializer):
         # read_only_fields = ['product', 'customer']
 
 
-class SendRatingForProductSerializer(serializers.ModelSerializer):
+class ShowProductForReviewsSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='name', read_only=True)
+    product_image = serializers.ImageField(source='image', read_only=True)
     
     class Meta :
+        model = Product
+        fields = ['id','product_name','product_image']
+
+
+class SendRatingForProductSerializer(serializers.ModelSerializer):
+    class Meta :
         model = Reviews
-        fields = ['rating']
+        fields = ['product','rating']
     
-    def validate(self, attrs):
-        return super().validate(attrs)
+    def create(self, validated_data):
+        user = self.context['request'].user
+        review = Reviews.objects.create(customer=user, **validated_data)
+
+        product = review.product
+        reviews = product.product_review.all()
+        avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+        product.average_rating = avg_rating
+        product.save()
+
+        return review

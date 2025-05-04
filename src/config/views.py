@@ -12,6 +12,8 @@ def user_profile_page (request):
     return render (request , 'panels/user_panel/profile.html')
 def user_order (request):
     return render (request , 'panels/user_panel/user_order.html')
+def product_rating (request):
+    return render (request , 'panels/user_panel/product_rating.html')
 #_______________________________________________________________________________
 
 
@@ -26,6 +28,9 @@ def register_operator_or_manager(request):
     return render (request , 'panels/vendor_panel/operator_manager.html')
 def vendor_order (request):
     return render (request , 'panels/vendor_panel/vendor_order.html')
+
+def manage_reviews (request):
+    return render (request , 'panels/vendor_panel/manage_reviews.html')
 
 
 def operator_panel(request):
