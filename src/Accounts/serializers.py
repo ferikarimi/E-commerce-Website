@@ -8,10 +8,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     class Meta :
         model = User
-        fields = [
-            'first_name','last_name','username','email','password' ,'password1' , 'phone_number','birth_date'
-        ]
-
+        fields = ['username','email','password' ,'password1' , 'phone']
 
     def validate(self, data):
         if data['password'] != data['password1'] :
@@ -19,9 +16,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         
         if User.objects.filter(email=data['email']).exists() :
             raise serializers.ValidationError({"error":"email is already registered ."})
-        
+    
         return data
-
 
     def create (self , validated_data):
         validated_data.pop('password1')
@@ -37,7 +33,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta :
         model = User
         fields = [
-            'username' , 'email' , 'first_name' , 'last_name' , 'phone_number' , 'birth_date' , 'created_at' , 'created_at_shamsi'
+            'username' , 'email' , 'first_name' , 'last_name' , 'phone' , 'birth_date' , 'created_at' , 'created_at_shamsi'
         ]
         read_only_fields = ['username' , 'email' , 'created_at' , 'created_at_shamsi']
 

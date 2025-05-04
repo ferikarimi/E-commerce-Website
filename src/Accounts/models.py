@@ -9,7 +9,7 @@ class User (AbstractUser):
         db_table='User'
 
         
-    phone_number = PhoneNumberField(null=True , blank=True)
+    phone = PhoneNumberField(unique=True)
     birth_date = models.DateField(null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_vendor = models.BooleanField(default=False)

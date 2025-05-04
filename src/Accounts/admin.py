@@ -16,7 +16,7 @@ class UserAdmin(admin.ModelAdmin):
                 ("is_vendor", "is_customer"),
                 ("first_name", "last_name"),
                 ("username", "email"),
-                ("phone_number", "birth_date"),
+                ("phone", "birth_date"),
             ],
             "classes": ["wide"],
         }),
