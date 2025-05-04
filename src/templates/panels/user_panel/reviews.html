@@ -39,14 +39,11 @@
           reviewCard.className = 'card';
           reviewCard.innerHTML = `
             <div class="d-flex align-items-center mb-2">
-              <img src="${review.product_image}" alt="عکس محصول" class="me-3 rounded" style="width: 80px; height: 80px; object-fit: cover;">
-              <div>
-                <h5 class="mb-0">${review.product_name}</h5>
-                <small class="text-muted">وضعیت: ${review.status}</small>
-              </div>
+              <img src="${review.product_image}" alt="عکس محصول" class="me-3 rounded" style="width: 150px; height: 150px; object-fit: cover;">
             </div>
-            <p class="mb-1"><strong>امتیاز:</strong> ${review.rating}</p>
-            <p><strong>نظر:</strong> ${review.comment}</p>
+            <h5>نام محصول : ${review.product_name}</h5>
+            <h5>وضعیت : ${review.status}</h5>
+            <p><strong>نظر :</strong> ${review.comment}</p>
           `;
           reviewsList.appendChild(reviewCard);
         });

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ثبت امتیاز{% endblock %}
+
+{% block content %}
+<body class="bg-light">
+<div class="container">
+  <h2 class="mb-4 text-center">ثبت امتیاز برای محصولات خریداری‌شده</h2>
+  <div id="products-list"></div>
+  <a href="http://127.0.0.1:8000/register/user_panel/" class="return-btn w-50 mt-2">بازگشت</a>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script>
+  const productsList = document.getElementById('products-list');
+  const accessToken = localStorage.getItem('access_token');
+
+  function fetchPurchasedProducts() {
+    fetch('/product/send_rating_for_product/', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      productsList.innerHTML = '';
+      if (data.length === 0) {
+        productsList.innerHTML = '<p class="text-center">محصولی برای ثبت امتیاز یافت نشد.</p>';
+      } else {
+        data.forEach(product => {
+          const productCard = document.createElement('div');
+          productCard.className = 'card p-3 mb-3';
+          productCard.innerHTML = `
+            <div class="d-flex align-items-center mb-2">
+              <img src="${product.product_image}" alt="عکس محصول" class="me-3 rounded" style="width: 150px; height: 150px; object-fit: cover;">
+            </div>
+          `;
+          productsList.appendChild(productCard);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('خطا در دریافت محصولات:', error);
+      productsList.innerHTML = '<p class="text-center text-danger">خطا در دریافت محصولات.</p>';
+    });
+  }
+
+  function submitRating(productId) {
+    const ratingInput = document.getElementById(`rating-${productId}`);
+    const rating = parseFloat(ratingInput.value);
+
+    if (!rating || rating < 1 || rating > 5) {
+      alert('لطفاً عددی بین 1 تا 5 وارد کنید.');
+      return;
+    }
+
+    fetch('/product/send_rating_for_product/', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        product: productId,
+        rating: rating
+      })
+    })
+    .then(res => {
+      if (res.status === 201) {
+        alert('امتیاز با موفقیت ثبت شد!');
+        fetchPurchasedProducts();  // Refresh the list
+      } else {
+        return res.json().then(data => {
+          throw new Error(data.detail || 'خطایی رخ داده است.');
+        });
+      }
+    })
+    .catch(error => {
+      console.error('خطا در ثبت امتیاز:', error);
+      alert(error.message);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchPurchasedProducts);
+</script>
+{% endblock %}
+</body>
+</html>

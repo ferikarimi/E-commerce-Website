@@ -59,6 +59,45 @@
 
 {% block custom_script %}
 <script>
+    let allProducts = []; // ذخیره همه محصولات
+
+
+    async function addToCart(productId) {
+        try {
+            console.log('Product ID:', productId); // خطایابی
+            if (!productId) {
+                throw new Error('شناسه محصول نامعتبر است.');
+            }
+
+            const response = await fetch('/cart/cart/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1
+                }),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response:', errorData); // خطایابی
+                throw new Error('خطا در افزودن به سبد خرید');
+            }
+
+            const result = await response.json();
+            console.log('Success:', result); // خطایابی
+            alert('محصول به سبد خرید اضافه شد!');
+        } catch (error) {
+            console.error('Error adding to cart:', error); // خطایابی
+            alert('مشکلی پیش آمده. لطفا دوباره تلاش کنید.');
+        }
+    }
+
+
     document.addEventListener('DOMContentLoaded', () => {
         const productIdMatch = window.location.pathname.match(/\/single_product\/(\d+)\/?$/);
         const productId = productIdMatch ? productIdMatch[1] : null;
@@ -85,13 +124,13 @@
                 </div>
                 <div class="col-md-7">
                     <h2 class="fw-bold">${product.name}</h2>
-                    <p>امتیاز : ${product.rating}</p>
+                    <p>امتیاز : ${product.average_rating}</p>
                     <p>دسته بندی : ${product.category}</p>
                     <p>قیمت : ${product.price} تومان</p>
                     <p>تعداد : ${product.stock}</p>
                     <p class="text-muted mb-4">توضیحات : ${product.description || 'توضیحاتی برای این محصول ثبت نشده است.'}</p>
-                    <button class="btn btn-primary flex-grow-1">
-                            <i class="fas fa-cart-plus me-2"></i> افزودن به سبد</button>
+                    <button onclick="addToCart(${product.id})" class="btn2 mb-2">افزودن به سبد خرید</button>
+
                 </div>
             </div>
         `;
@@ -107,6 +146,7 @@
         
         let html = '<div class="list-group list-group-flush">';
         reviews.forEach(review => {
+
             html += `
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between mb-2">
@@ -208,6 +248,14 @@
         const box = document.getElementById('message-box');
         box.classList.add('d-none');
     }
+
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', () => {
+            const productId = button.getAttribute('data-product-id');
+            addToCart(productId);
+        });
+    });
+
 
 </script>
 {% endblock %}

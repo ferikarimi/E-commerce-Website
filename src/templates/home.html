@@ -39,7 +39,7 @@
 
 	async function addToCart(productId) {
 	    try {
-	        const response = await fetch('http://127.0.0.1:8000/cart/cart/', {
+	        const response = await fetch('/cart/cart/', {
 	            method: 'POST',
 	            headers: {
 	                'Content-Type': 'application/json',
@@ -120,7 +120,7 @@
 	                    <div class="product-info">
 	                        <div>
 	                            <h3>نام: ${product.name}</h3>
-	                            <p>امتیاز: ${product.rating || 'نامشخص'}</p>
+	                            <p>امتیاز: ${product.average_rating || 'نامشخص'}</p>
 	                            <p>قیمت: ${product.final_price} تومان</p>
 	                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
 	                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>

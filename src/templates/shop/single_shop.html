@@ -34,32 +34,38 @@
     // درخواست اطلاعات فروشگاه از API
 
 	let allProducts = []; // ذخیره همه محصولات
+    async function addToCart(productId) {
+        try {
+            console.log('Adding product to cart:', productId);
+            const response = await fetch('/cart/cart/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1
+                }),
+                credentials: 'include'
+            });
 
-	async function addToCart(productId) {
-	    try {
-	        const response = await fetch('http://127.0.0.1:8000/cart/cart/', {
-	            method: 'POST',
-	            headers: {
-	                'Content-Type': 'application/json',
-	                'Accept': 'application/json'
-	            },
-	            body: JSON.stringify({
-	                product_id: productId,
-	                quantity: 1 // تعداد پیشفرض که میخوای اضافه بشه
-	            })
-	        });
-		
-	        if (!response.ok) {
-	            throw new Error('خطا در افزودن به سبد خرید');
-	        }
-		
-	        const result = await response.json();
-	        alert('محصول به سبد خرید اضافه شد!');
-	    } catch (error) {
-	        console.error('Error adding to cart:', error);
-	        alert('مشکلی پیش آمده. لطفا دوباره تلاش کنید.');
-	    }
-	}
+            if (!response.ok) {
+                console.error('Error response:', errorData);
+                throw new Error('خطا در افزودن به سبد خرید');
+            }
+
+            const result = await response.json();
+            console.log('Success:', result);
+            alert('محصول به سبد خرید اضافه شد!');
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            console.error('Error adding to cart:', error);
+            alert('مشکلی پیش آمده. لطفا دوباره تلاش کنید.');
+        }
+    }
+
+
     async function fetchShopData() {
         try {
             const response = await fetch(`/vendors/single_shop/${shopId}/`);
@@ -105,13 +111,14 @@
                     <div class="product-info">
                         <div>
                             <h3>نام : ${product.name}</h3>
-                            <p>امتیاز : ${product.rating || 'نامشخص'}</p>
+                            <p>امتیاز : ${product.average_rating || 'نامشخص'}</p>
                             <p>قیمت : ${product.final_price} تومان</p>
                             ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
                             <p>تعداد : ${product.stock}</p>
                         </div>
                         <div class="product-buttons">
                             <button onclick="addToCart(${product.id})" class="btn2">افزودن به سبد خرید</button>
+
                             <a href="http://127.0.0.1:8000/register/single_product/${product.id}/" class="btn">جزئیات محصول</a>
                         </div>
                     </div>
