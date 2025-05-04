@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .serializers import ReviewsSerializer , AddProductSerializer , AllProductSerializer , VendorProductSerializer , EditProductSerializer , EditSingleProductSerializer , GetSingleProductReviewsSerializer , PostSingleProductReviewsSerializer , SingleProductSerializer
+from .serializers import ReviewsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , EditSingleProductSerializer , GetSingleProductReviewsSerializer , SingleProductSerializer , SearchProductSerializer , SendReviewsForProductSerializer , SendRatingForProductSerializer
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated 
 from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator ,IsVendorOrManager
@@ -8,13 +9,13 @@ from .models import Reviews , Product
 from Vendors.models import Vendors , Shop 
 from Cart.models import OrderDetail
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics
-
+from rest_framework import generics , filters
+from Accounts.models import User
 
 
 class UserReviews(APIView):
     """
-        get all user reviews
+        get user all reviews
     """
     # permission_classes = [IsAuthenticated]
     
@@ -77,7 +78,7 @@ class EditProduct (APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors , status=400)
-    
+
 
 class ProductPagination(PageNumberPagination):
     """
@@ -88,17 +89,20 @@ class ProductPagination(PageNumberPagination):
     max_page_size = 16
 
 
-class AllProducts(generics.ListAPIView):
+class SearchProducts(generics.ListAPIView):
     """
-        get all prroduct for 'home.html' page
+        get all product for 'home.html' page 
+              searching and sorting
     """
     
     queryset = Product.objects.all()
-    serializer_class = AllProductSerializer
+    serializer_class = SearchProductSerializer
     pagination_class = ProductPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name','category__name','store_name__name']
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = super().get_queryset()
         sort_by = self.request.query_params.get('sort')
         
         if sort_by == 'cheap':
@@ -126,7 +130,32 @@ class AllProducts(generics.ListAPIView):
             queryset = queryset.order_by('-created_at')
         
         return queryset
-    
+
+
+class SingleProduct(APIView):
+    """
+        get single product detail
+    """
+    def get (self , request , id):
+        product = get_object_or_404 (Product , id=id)
+        serializer = SingleProductSerializer(product)
+        return Response (serializer.data , status=200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class ProductReviews(APIView):
@@ -140,127 +169,10 @@ class ProductReviews(APIView):
         return Response (serializer.data , status=200)
     
     def post (self , request , id):
-        product = get_object_or_404 (Product , id=id)
-        user = request.user
-
-        has_purchased = OrderDetail.objects.filter(
-            order__customer = user ,
-            product = product ,
-        ).exists()
-
-        serializer = PostSingleProductReviewsSerializer(data=request.data)
+        product = get_object_or_404(Product, id=id)
+        customer = request.user
+        serializer = SendReviewsForProductSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(customer=customer ,product=product)
             return Response(serializer.data , status=201)
         return Response(serializer.errors , status=400)
-
-        
-
-
-
-
-
-
-
-
-
-
-
-class SingleProduct(APIView):
-    """
-        get single product detail
-    """
-    def get (self , request , id):
-        product = get_object_or_404 (Product , id=id)
-        serializer = SingleProductSerializer(product)
-        return Response (serializer.data , status=200)
-    
-
-
-
-
-
-
-
-
-class SearchProduct(APIView):
-    """
-        search product by 'name','field','store_name'
-    """
-    pass
-
-
-#django-filters
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class Product (APIView):
-#     """
-#         show , add, update and delete products
-#     """
-#     permission_classes = [IsAuthenticatedVendor , IsVendorManager]
-
-#     def get(self , request):
-#         vendor = Vendors.objects.get(user=request.user)
-#         all_product = Product.objects.filter(vendor_id = vendor)
-#         serializer = VendorProductSerializer(all_product , many=True)
-#         return Response(serializer.data)
-    
-#     def post (self , request):
-#         vendor = get_object_or_404(Vendors , user=request.user)
-#         shop = get_object_or_404(Shop , vendor=vendor)
-#         serializer = AddProductSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save(
-#                 vendor_id = vendor.id ,
-#                 store_name = shop
-#             )
-#             return Response({'message':'product created !'} , status=201)
-#         return Response(serializer.errors , status=400)
-
-#     def put (self , request , pk):
-#         product = get_object_or_404(Product , pk=pk)
-#         serializer = EditProductSerializer (product , data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors , status=400)

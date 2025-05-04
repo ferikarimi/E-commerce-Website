@@ -18,7 +18,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
-    list_display = ["name" , "categories"]
+    list_display = ["name" , "categories" , "stock"]
     
     def categories (self, obj):
         if obj.category:

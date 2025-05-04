@@ -91,9 +91,11 @@ class VendorSetProductSerializer (serializers.ModelSerializer):
 
 
 
-class AllProductSerializer (serializers.ModelSerializer):
+class SearchProductSerializer (serializers.ModelSerializer):
     final_price = serializers.SerializerMethodField()
     shop_name = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+
 
     class Meta :
         model = Product
@@ -105,6 +107,8 @@ class AllProductSerializer (serializers.ModelSerializer):
     def get_shop_name (self , obj):
         return obj.store_name.name
     
+    def get_category (self , obj):
+        return obj.category.name
 
 
 
@@ -118,13 +122,52 @@ class GetSingleProductReviewsSerializer(serializers.ModelSerializer):
     def get_customer_name (self , obj):
         return obj.customer.username
 
-class PostSingleProductReviewsSerializer(serializers.ModelSerializer):
-    class Meta :
-        model = Reviews
-        fields = ['rating','commeent','status']
-    
 
 class SingleProductSerializer (serializers.ModelSerializer):
     class Meta :
         model = Product
         fields =['category','name','description','price','store_name','image','stock','rating']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class SendReviewsForProductSerializer(serializers.ModelSerializer):
+
+    class Meta :
+        model = Reviews
+        fields = ['comment','status']
+        # read_only_fields = ['product', 'customer']
+
+
+class SendRatingForProductSerializer(serializers.ModelSerializer):
+    
+    class Meta :
+        model = Reviews
+        fields = ['rating']
+    
+    def validate(self, attrs):
+        return super().validate(attrs)
