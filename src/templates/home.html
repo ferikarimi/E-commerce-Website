@@ -120,7 +120,7 @@
 	                    <div class="product-info">
 	                        <div>
 	                            <h3>نام: ${product.name}</h3>
-	                            <p>امتیاز: ${product.average_rating || 'نامشخص'}</p>
+	                            <p>امتیاز: ${product.average_rating}</p>
 	                            <p>قیمت: ${product.final_price} تومان</p>
 	                            ${product.discount > 0 ? `<p>تخفیف: ${product.discount}%</p>` : ''}
 	                            <p>فروشگاه: ${product.shop_name || 'نامشخص'}</p>

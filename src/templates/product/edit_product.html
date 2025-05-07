@@ -97,7 +97,6 @@
       form.discount_amount.value = data.discount_amount || '';
       form.discount_percentage.value = data.discount_percentage || '';
 
-
     })
     .catch(error => {
       errorBox.innerHTML = error.message;
@@ -110,7 +109,7 @@
     const formData = new FormData(form);
 
     fetch(`/product/edit_product/${productId}/`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
 
         'Authorization': 'Bearer ' + accessToken,

@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}پروفایل ادمین{% endblock %}
+{% block title %}پروفایل کاربر{% endblock %}
 {% block content %}
+</head>
 <body class="bg-light">
 
 <div class="form-container">
@@ -12,15 +13,7 @@
   <!-- فرم ویرایش مشخصات -->
   <form id="profile-form">
     <div class="mb-3">
-      <label class="form-label">نام کاربری</label>
-      <input type="text" class="form-control ltr-input" name="username" readonly>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">ایمیل</label>
-      <input type="email" class="form-control ltr-input" name="email" readonly>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">نام</label>
+      <label class="form-label">اسم</label>
       <input type="text" class="form-control ltr-input" name="first_name">
     </div>
     <div class="mb-3">
@@ -28,12 +21,20 @@
       <input type="text" class="form-control ltr-input" name="last_name">
     </div>
     <div class="mb-3">
+      <label class="form-label">نام کاربری</label>
+      <input type="text" class="form-control ltr-input" name="username">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">ایمیل</label>
+      <input type="email" class="form-control ltr-input" name="email">
+    </div>
+    <div class="mb-3">
       <label class="form-label">شماره تلفن</label>
       <input type="text" class="form-control ltr-input" name="phone">
     </div>
     <div class="mb-3">
       <label class="form-label">تاریخ تولد</label>
-      <input type="date" class="form-control ltr-input" name="birth_date">
+      <input type="date" class="form-control ltr-input" name="birth_date" required>
     </div>
     <div class="mb-3">
       <label class="form-label">زمان ساخت اکانت</label>
@@ -45,7 +46,6 @@
 </div>
 {% endblock %}
 <hr>
-
 {% block custom_script %}
 <script>
   // مدیریت پروفایل
@@ -65,6 +65,7 @@
   })
   .then(response => response.json().then(json => ({status: response.status, body: json})))
   .then(({status, body}) => {
+    console.log("Response body:", body);
     if (status === 200) {
       for (const key in body) {
         const field = form.elements.namedItem(key);
@@ -86,7 +87,7 @@
     formData.forEach((value, key) => { data[key] = value });
 
     fetch('/users/user_profile/', {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken,
