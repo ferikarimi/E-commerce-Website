@@ -1,4 +1,4 @@
-from django.shortcuts import redirect , get_object_or_404 
+from django.shortcuts import redirect , get_object_or_404  , get_list_or_404
 from rest_framework.permissions import IsAuthenticated , AllowAny
 from Vendors.permissions import IsAuthenticatedVendor 
 from rest_framework.views import APIView
@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from Products.models import Product 
 from Customers.models import Addresses
 from .models import OrderDetail , Orders
-from .serializers import UserOrderSerializer , VendorOrderSerializer 
+from .serializers import UserOrderSerializer , VendorOrderSerializer , UserOrderDetailSerializer
 from Products.models import Shop
 import json
 
@@ -14,7 +14,7 @@ import json
 
 class Cart (APIView):
     """
-        create, get and update shopping cart with cookies
+        create, get and update pre shopping cart with cookies
     """
     permission_classes = [AllowAny]
     def get_cart (self , request):
@@ -107,7 +107,6 @@ class CheckOutView (APIView):
     def set_cart (self , response , cart):
         response.set_cookie('cart',json.dumps(cart) , max_age = 300 )
 
-    
     def get (self , request):
         if not request.user.is_authenticated :
             return redirect ('login')
@@ -116,16 +115,16 @@ class CheckOutView (APIView):
     
     def post (self , request):
         cart = self.get_cart(request)
-        if not cart :
-            return Response({'message':'your cart is empty'} , status=400)
-        
         address_id = request.data.get('address_id')
         address =get_object_or_404(Addresses , id=address_id , user=request.user)
+        total_price = 0
 
+        if not cart :
+            return Response({'message':'your cart is empty'} , status=400)
+    
         if not address :
             return Response({'error':'you dont choice any addresss'})
 
-        total_price = 0
         for item in cart.values():
             total_price += float(item['price'] * item['quantity'])
         
@@ -188,6 +187,18 @@ class UserOrdersView (APIView):
         return Response({'message':'order cancelled successfully !'})
 
 
+class UserOrderDetail(APIView):
+    """
+        get user order details
+    """
+    def get(self, request):
+        user= request.user
+        order = get_list_or_404(Orders , customer=user)
+        order_detail = OrderDetail.objects.filter(order__in=order)
+        serializer = UserOrderDetailSerializer(order_detail , many=True)
+        return Response(serializer.data , status=200)
+
+
 class VendorOrdersView (APIView):
     """
         get shop`s orders and change order status
@@ -216,68 +227,3 @@ class VendorOrdersView (APIView):
             serializer.save()
             return Response (serializer.data , status=200)
         return Response (serializer.errors , status=400)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class UserOrderDetailView (APIView):
-
-#     def get (self , request , id):
-#         user = request.user
-#         order = Orders.objects.filter(customer=user)
-#         order_detail = OrderDetail.objects.filter(order=order , id=id)
-#         serilaizer = OrderDetailSerializer(order_detail)
-#         return Response (serilaizer.data , status=200)
-    
-
-# class UserSendRate (APIView):
-#     def post (self , request ,id):
-#         product = Product.objects.get(id=id)
-
-
-
-
-
-
-
-
-
-
-# class VendorOrderDetailView (APIView):
-
-#     def get (self , request , id):
-#         user = request.user
-#         order = Orders.objects.filter(customer=user)
-#         order_detail = OrderDetail.objects.filter(order=order , id=id)
-#         serilaizer = OrderDetailSerializer(order_detail)
-#         return Response (serilaizer.data , status=200)

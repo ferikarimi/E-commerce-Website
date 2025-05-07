@@ -87,7 +87,7 @@
                 throw new Error('مشکل در دریافت محصولات فروشگاه');
             }
             const productsData = await response.json();
-            allProducts = productsData;
+            allProducts = productsData.results;
             filterAndRenderProducts();
 
         } catch (error) {

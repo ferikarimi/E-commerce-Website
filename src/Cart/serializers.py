@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from .models import Orders , OrderDetail
-# from .models import 
 
 
 
 class UserOrderSerializer (serializers.ModelSerializer):
+    """
+        serializer for user orders. user can change status to 'canclled'
+    """
     address = serializers.SerializerMethodField()
 
     class Meta :
@@ -20,12 +22,25 @@ class UserOrderSerializer (serializers.ModelSerializer):
     
     def get_address(self, obj):
         return str(obj.address)
-        
+
+
+class UserOrderDetailSerializer (serializers.ModelSerializer):
+    """
+        user can see order detail
+    """
+    product_name = serializers.CharField(source='product.name')
+
+    class Meta :
+        model = OrderDetail
+        fields = ['product_name','order','single_price','quantity']
+
 
 class VendorOrderSerializer (serializers.ModelSerializer):
+    """
+        serializer for vendors. vendors can see shop order and change status for orders
+    """
     address = serializers.SerializerMethodField()
     customer = serializers.SerializerMethodField()
-
 
     class Meta :
         model = Orders
@@ -37,11 +52,3 @@ class VendorOrderSerializer (serializers.ModelSerializer):
         
     def get_customer(self , obj):
         return str(obj.customer.username)
-    
-
-
-# class OrderDetailSerializer(serializers.ModelSerializer):
-#     class Meta :
-#         model = OrderDetail
-#         fields = ['product','single_price','quantity']
-
