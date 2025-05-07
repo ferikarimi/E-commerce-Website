@@ -11,7 +11,7 @@ class GetUserAddresses (APIView):
         get, create, update and delete user`s addresses
     """
     permission_classes = [IsAuthenticated]
-
+    
     def get (self , request):
         addresses = request.user.addresses.all()
         serializer = AddressSerializer(addresses , many=True)

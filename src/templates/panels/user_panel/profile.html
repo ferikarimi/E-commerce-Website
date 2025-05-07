@@ -22,11 +22,11 @@
     </div>
     <div class="mb-3">
       <label class="form-label">نام کاربری</label>
-      <input type="text" class="form-control ltr-input" name="username" readonly>
+      <input type="text" class="form-control ltr-input" name="username">
     </div>
     <div class="mb-3">
       <label class="form-label">ایمیل</label>
-      <input type="email" class="form-control ltr-input" name="email" readonly>
+      <input type="email" class="form-control ltr-input" name="email">
     </div>
 
     <div class="mb-3">
@@ -35,7 +35,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label">تاریخ تولد</label>
-      <input type="date" class="form-control ltr-input" name="birth_date">
+      <input type="date" class="form-control ltr-input" name="birth_date" required>
     </div>
     <div class="mb-3">
       <label class="form-label">زمان ساخت اکانت</label>
@@ -66,6 +66,7 @@
   })
   .then(response => response.json().then(json => ({status: response.status, body: json})))
   .then(({status, body}) => {
+    console.log("Response body:", body);
     if (status === 200) {
       for (const key in body) {
         const field = form.elements.namedItem(key);
@@ -87,7 +88,7 @@
     formData.forEach((value, key) => { data[key] = value });
 
     fetch('/users/user_profile/', {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken,

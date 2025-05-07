@@ -7,7 +7,7 @@
 
 <div class="container">
   <h2 class="mb-4 text-center">نظرات ثبت شده شما</h2>
-  <div id="reviews-list">
+  <div id="comments-list">
   </div>
   <a href="http://127.0.0.1:8000/register/user_panel/" class="return-btn w-50 mt-2">بازگشت</a>
 </div>
@@ -15,11 +15,11 @@
 
 {% block custom_script %}
 <script>
-  const reviewsList = document.getElementById('reviews-list');
+  const commentsList = document.getElementById('comments-list');
   const accessToken = localStorage.getItem('access_token');
 
-  function fetchReviews() {
-    fetch('/product/user_reviews/', {
+  function fetchComments() {
+    fetch('/product/user_comments/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -30,9 +30,9 @@
     .then(res => res.json())
 
     .then(data => {
-      reviewsList.innerHTML = '';
+      commentsList.innerHTML = '';
       if (data.length === 0) {
-        reviewsList.innerHTML = '<p class="text-center">هنوز نظری ثبت نکرده‌اید.</p>';
+        commentsList.innerHTML = '<p class="text-center">هنوز نظری ثبت نکرده‌اید.</p>';
       } else {
         data.forEach(review => {
           const reviewCard = document.createElement('div');
@@ -45,17 +45,17 @@
             <h5>وضعیت : ${review.status}</h5>
             <p><strong>نظر :</strong> ${review.comment}</p>
           `;
-          reviewsList.appendChild(reviewCard);
+          commentsList.appendChild(reviewCard);
         });
       }
     })
     .catch(error => {
       console.error('خطا در دریافت نظرات:', error);
-      reviewsList.innerHTML = '<p class="text-center text-danger">خطا در دریافت نظرات.</p>';
+      commentsList.innerHTML = '<p class="text-center text-danger">خطا در دریافت نظرات.</p>';
     });
   }
 
-  document.addEventListener('DOMContentLoaded', fetchReviews);
+  document.addEventListener('DOMContentLoaded', fetchComments);
 </script>
 {% endblock %}
 </body>

@@ -20,8 +20,9 @@
     fetch('/product/send_rating_for_product/', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer ' + accessToken,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+
       }
     })
     .then(res => res.json())
@@ -36,6 +37,11 @@
           productCard.innerHTML = `
             <div class="d-flex align-items-center mb-2">
               <img src="${product.product_image}" alt="عکس محصول" class="me-3 rounded" style="width: 150px; height: 150px; object-fit: cover;">
+              <div>
+                <h5>${product.product_name}</h5>
+                <input type="number" id="rating-${product.id}" min="1" max="5" step="1" placeholder="امتیاز 1 تا 5" class="form-control mb-2" style="width: 150px;">
+                <button class="btn btn-success" onclick="submitRating(${product.id})">ثبت امتیاز</button>
+              </div>
             </div>
           `;
           productsList.appendChild(productCard);
@@ -56,6 +62,7 @@
       alert('لطفاً عددی بین 1 تا 5 وارد کنید.');
       return;
     }
+    console.log("productId being sent:", productId);
 
     fetch('/product/send_rating_for_product/', {
       method: 'POST',
@@ -63,10 +70,11 @@
         'Authorization': 'Bearer ' + accessToken,
         'Content-Type': 'application/json'
       },
+      
       body: JSON.stringify({
-        product: productId,
-        rating: rating
-      })
+      product: productId,
+      rating: rating
+    })
     })
     .then(res => {
       if (res.status === 201) {
@@ -74,6 +82,7 @@
         fetchPurchasedProducts();  // Refresh the list
       } else {
         return res.json().then(data => {
+          console.error('Server error data:', data);
           throw new Error(data.detail || 'خطایی رخ داده است.');
         });
       }

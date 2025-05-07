@@ -7,10 +7,9 @@
     
     <div id="message-box" class="alert"></div>
     
-    <div id="order-detail-container">
-        <!-- سفارش‌ها اینجا نمایش داده می‌شوند -->
-    </div>
-    <a href="http://127.0.0.1:8000/register/user_panel/" class="return-btn w-25 mt-2">بازگشت</a>
+    <div id="orders-container"></div>
+
+    <a href="http://127.0.0.1:8000/register/user_order/" class="return-btn w-25 mt-2">بازگشت</a>
 </div>
 {% endblock %}
 
@@ -43,86 +42,28 @@
             });
         }
 
-        function renderOrders(orders) {
-            const container = document.getElementById('order-detail-container');
-            
-            if (orders.length === 0) {
-                container.innerHTML = '<div class="empty-orders">هنوز سفارشی ثبت نکرده‌اید.</div>';
-                return;
-            }
-            
+        function renderOrders(data) {
+            const container = document.getElementById('orders-container');
             container.innerHTML = '';
+
+            data.forEach(order => {
+                const totalPrice = Number(order.single_price) * Number(order.quantity);
             
-            orders.forEach(order => {
-                console.log('Order:', order);
-
-                const orderCard = document.createElement('div');
-                orderCard.className = 'order-card';
-                
-                // تعیین کلاس وضعیت سفارش
-                let statusClass = '';
-                let statusText = '';
-                switch(order.status) {
-                    case 'pending':
-                        statusClass = 'status-pending';
-                        statusText = 'در انتظار پرداخت';
-                        break;
-                    case 'processing':
-                        statusClass = 'status-processing';
-                        statusText = 'در حال پردازش';
-                        break;
-                    case 'delivered':
-                        statusClass = 'status-delivered';
-                        statusText = 'تحویل داده شده';
-                        break;
-                    case 'cancelled':
-                        statusClass = 'status-cancelled';
-                        statusText = 'لغو شده';
-                        break;
-
-                    case 'shipped':
-                        statusClass = 'status-shipped';
-                        statusText = 'درحال ارسال';
-                        break;
-
-                    default:
-                        statusClass = 'status-pending';
-                        statusText = order.status;
-                }
-                
-                // تاریخ سفارش
-                const orderDate = new Date(order.order_date);
-                const formattedDate = orderDate.toLocaleDateString('fa-IR');
-                
-                orderCard.innerHTML = `
-                    <div class="order-header">
-                        <div>
-                            <span class="order-id">سفارش شماره: ${order.id}</span>
-                            <span class="order-date"> - تاریخ: ${formattedDate}</span>
-                        </div>
-                        <span class="order-status ${statusClass}">${statusText}</span>
-                    </div>
-                    
-                    <div class="order-details">
-                        <p>آدرس تحویل: ${order.address}</p>
-                        <p>مبلغ کل: <span class="price">${order.total_price.toLocaleString('fa-IR')} تومان</span></p>
-                        ${order.discount_price ? `<p>تخفیف: <span class="price">${order.discount_price.toLocaleString('fa-IR')} تومان</span></p>` : ''}
-                    </div>
-                    
-                    <div class="order-actions">
-                        <button 
-                            class="cancel-btn" 
-                            data-order-id="${order.id}"
-                            ${order.status === 'delivered' || order.status === 'cancelled' || order.status === 'shipped' ? 'disabled' : ''}
-                            onclick="cancelOrder(${order.id})">
-                            لغو سفارش
-                        </button>
-                    </div>
+                const orderElement = document.createElement('div');
+                orderElement.classList.add('order-card');
+            
+                orderElement.innerHTML = `
+                    <h3>سفارش شماره : ${order.order}</h3>
+                    <p>نام محصول : ${order.product_name}</p>
+                    <p>قیمت واحد : ${Number(order.single_price).toLocaleString('fa-IR')} تومان</p>
+                    <p>تعداد : ${order.quantity}</p>
+                    <p>قیمت کل : ${totalPrice.toLocaleString('fa-IR')} تومان</p>
                 `;
-                
-                container.appendChild(orderCard);
+            
+                container.appendChild(orderElement);
             });
         }
+
 
         function cancelOrder(orderId) {
             if (!orderId) {
