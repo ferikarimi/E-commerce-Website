@@ -1,75 +1,59 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}صفحه ورود{% endblock %}
+{% block title %}ورود با کد یکبار مصرف{% endblock %}
+
 {% block content %}
+<div class="form-container">
+  <h2 class="mb-4 text-center">ورود با OTP</h2>
 
-  <body class="bg-light">
+  <div id="error-message" class="alert alert-danger d-none"></div>
 
-  <div class="form-container">
-    <h2 class="mb-4 text-center">ورود</h2>
-
-    <div id="error-message" class="alert alert-danger d-none"></div>
-
-    <form id="login-form">
-      <div class="mb-3">
-        <label class="form-label">نام کاربری</label>
-        <input type="username" class="form-control ltr-input" name="username" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">رمز عبور</label>
-        <input type="password" class="form-control ltr-input" name="password" required>
-      </div>
-      <button type="submit" class="btn btn-primary w-100">ورود</button>
-      <div class="d-flex gap-2 mt-2">
-        <a href="http://127.0.0.1:8000/register/register/" class="redirect-btn w-50">حساب ندارید ؟</a>
-        <a href="/" class="return-btn w-50">بازگشت</a>
-      </div>
-    </form>
-  </div>
+  <form id="otp-request-form">
+    <div class="mb-3">
+      <label class="form-label">شماره تلفن یا ایمیل</label>
+      <input type="text" class="form-control ltr-input" name="identifier" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">ارسال کد تایید</button>
+  </form>
+</div>
 {% endblock %}
 
 {% block custom_script %}
-  <script>
-    const form = document.getElementById('login-form');
-    const errorBox = document.getElementById('error-message');
+<script>
+  const form = document.getElementById('otp-request-form');
+  const errorBox = document.getElementById('error-message');
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const identifier = form.identifier.value.trim();
+    const data = {};
 
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => { data[key] = value });
+    if (identifier.includes('@')) {
+      data['email'] = identifier;
+    } else {
+      data['phone'] = identifier;
+    }
 
-      fetch('/api/token/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json().then(json => ({status: response.status, body: json})))
-      .then(({status, body}) => {
-        if (status === 200) {
-          localStorage.setItem("access_token", body.access);
-          window.location.href = "/";
-        } else {
-          let errorText = '';
-          if (body.error) {
-            errorText = body.error;
-          } else {
-            errorText = 'نام کاربری یا رمز عبور اشتباه است.';
-          }
-          errorBox.innerHTML = errorText;
-          errorBox.classList.remove('d-none');
-        }
-      })
-      .catch(error => {
-        errorBox.innerHTML = 'Something went wrong.';
+    fetch('/users/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(json => ({status: response.status, body: json})))
+    .then(({status, body}) => {
+      if (status === 200) {
+        // ذخیره identifier برای مرحله بعدی
+        localStorage.setItem('identifier', identifier);
+        window.location.href = '/register/verify_otp/';
+      } else {
+        errorBox.innerHTML = body.error || 'خطایی رخ داده است.';
         errorBox.classList.remove('d-none');
-      });
+      }
+    })
+    .catch(error => {
+      errorBox.innerHTML = 'مشکلی در ارسال درخواست پیش آمد.';
+      errorBox.classList.remove('d-none');
     });
-  </script>
+  });
+</script>
 {% endblock %}
-</body>
-</html>

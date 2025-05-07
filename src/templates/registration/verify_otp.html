@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}تایید کد OTP{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="mb-4 text-center">تایید کد یکبار مصرف</h2>
+
+  <div id="error-message" class="alert alert-danger d-none"></div>
+
+  <form id="verify-form">
+    <div class="mb-3">
+      <label class="form-label">کد تایید</label>
+      <input type="text" class="form-control" name="otp" id="otp-input" required>
+    </div>
+    <button type="submit" class="btn btn-success w-100">ورود</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script>
+  const form = document.getElementById('verify-form');
+  const errorBox = document.getElementById('error-message');
+  const otpInput = document.getElementById('otp-input');
+
+  // پاک کردن پیام خطا هنگام تایپ
+  otpInput.addEventListener('input', () => {
+    errorBox.classList.add('d-none');
+    errorBox.innerHTML = '';
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const otp = otpInput.value.trim();
+    const identifier = localStorage.getItem('identifier');
+
+    const data = identifier.includes('@') 
+      ? { email: identifier, otp: otp } 
+      : { phone: identifier, otp: otp };
+
+    try {
+      const response = await fetch('/users/verify_otp/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const body = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('access_token', body.access);
+        localStorage.setItem('refresh_token', body.refresh);
+        window.location.href = '/';
+      } else {
+        errorBox.innerHTML = body.error || 'کد وارد شده اشتباه یا منقضی شده است.';
+        errorBox.classList.remove('d-none');
+      }
+
+    } catch (error) {
+      errorBox.innerHTML = 'خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.';
+      errorBox.classList.remove('d-none');
+    }
+  });
+</script>
+{% endblock %}

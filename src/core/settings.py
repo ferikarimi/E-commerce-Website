@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'phonenumber_field',
+    # 'kavenegar',
     # 'corsheaders',
 
     'Accounts',
@@ -60,10 +61,13 @@ INSTALLED_APPS = [
     'Vendors',
     'Website',
 ]
+
 # X_FRAME_OPTIONS = 'SAMEORIGIN'
 # ADMIN_INTERFACE_INCLUDE_CSS = [
 #     'css/custom_admin.css',
 # ]
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -121,11 +125,6 @@ DATABASES = {
 #         'PORT': os.environ.get('DB_PORT')
 #     }
 # }
-
-
-
-
-
 
 
 CACHES = {
@@ -209,19 +208,24 @@ SIMPLE_JWT = {
 }
 
 
-
-
-
-
-
-
-
-
 # change jango defult user 
 AUTH_USER_MODEL = 'Accounts.User'
 
 
+# Configuring Email Settings
 
-# celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'farzad3467@gmail.com'
+EMAIL_HOST_PASSWORD = 'plkd ckvn zirt qosa'
+
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}

@@ -20,32 +20,28 @@ from django.conf import settings
 from django.conf.urls.static import static
 from config.views import home_page
 from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
-# from Website.views import otp_generation_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/' , include('config.urls')),
     path('customer/' , include('Customers.urls')),
     path('cart/' , include('Cart.urls')),
-
     path('vendors/' , include('Vendors.urls')),
     path('users/' , include('Accounts.urls')),
     path('web/' , include('Website.urls')),
     path('product/' , include('Products.urls')),
-
     path('api/token/' , TokenObtainPairView.as_view() , name='token_obtain_pair'),
     path('api/token/refresh/' , TokenRefreshView.as_view() , name='token_refresh'),
     path('', home_page, name='home-page'),
-
-    # path('otp', otp_generation_view , name='otp_generation')
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
-
-# admin.site.site_header = "ONLINE SHOP ADMIN PANEL"
+admin.site.site_header = "ONLINE SHOP ADMIN PANEL"
 admin.site.site_title = "ADMIN PANEL"
 admin.site.index_title = "WELCOME"

@@ -64,26 +64,8 @@
       const registerResult = await registerResponse.json();
 
       if (registerResponse.status === 201) {
-        // کاربر با موفقیت ثبت نام شد -> حالا لاگین کن
-        const loginResponse = await fetch('/api/token/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            username: data.username,
-            password: data.password
-          })
-        });
-        const loginResult = await loginResponse.json();
-        if (loginResponse.status === 200) {
-          localStorage.setItem('access_token', loginResult.access);
-          localStorage.setItem('refresh_token', loginResult.refresh);
-          window.location.href = '/';
-        } else {
-          errorBox.innerHTML = 'Login failed after registration.';
-          errorBox.classList.remove('d-none');
-        }
+        // ✅ فقط هدایت به صفحه‌ی لاگین
+        window.location.href = "http://127.0.0.1:8000/register/login/";
       } else {
         let errorText = '';
         for (const key in registerResult) {
@@ -99,5 +81,6 @@
   });
 </script>
 {% endblock %}
+
 </body>
 </html>

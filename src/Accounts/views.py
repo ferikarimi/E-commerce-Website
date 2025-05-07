@@ -1,28 +1,28 @@
 from rest_framework.response import Response
-from rest_framework import status
 from .serializers import UserRegisterSerializer , UserProfileSerializer
 from rest_framework.permissions import IsAuthenticated , AllowAny
-from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-
+import random
+from django.core.mail import send_mail
+from .models import User
+from django.shortcuts import get_object_or_404
+from django.core.cache import cache
+from kavenegar import *
+from .utils import rate_limit
 
 
 class RegisterUser(APIView):
     """
-        register user with jwt
+        register user
     """
     permission_classes = [AllowAny]
 
     def post (self , request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access' : str(refresh.access_token)
-            } , status=201)
+            serializer.save()
+            return Response(serializer.data , status=201)
         return Response (serializer.errors , status=400)
 
 
@@ -37,9 +37,11 @@ class UserProfile(APIView):
         serializer = UserProfileSerializer(user)
         return Response(serializer.data , status=200)
 
-    def put (self , request):
+    def patch (self , request):
+        request.data.pop('created_at_shamsi', None)
+        print("PATCH DATA:", request.data)
         user = request.user
-        serializer = UserProfileSerializer(user , data=request.data)
+        serializer = UserProfileSerializer(user , data=request.data , partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=200)
@@ -62,7 +64,6 @@ class Logout (APIView):
             return Response (status=400)
 
 
-
 class CheckUserType (APIView):
     """
         check user type
@@ -74,3 +75,98 @@ class CheckUserType (APIView):
             'is_vendor': request.user.is_vendor ,
             'is_customer': request.user.is_customer
         })
+
+
+# -------------------- otp with redis cache -------------------#
+def generate_otp (identifier , timeout=120):
+    otp = str(random.randint(100000 , 999999))
+    cache.set(identifier ,otp,timeout=timeout)
+    return otp
+
+def get_otp (identifier):
+    return cache.get(identifier)
+
+def delete_otp (identifier):
+    cache.delete(identifier)
+# ------------------------------------------------------------#
+
+class CustomLoginView(APIView):
+    """
+        custom login with otp verification and create jwt token
+    """
+    @rate_limit
+    def post (self ,request):
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        if not email and not phone:
+            return Response({'error': 'email or phone is required'}, status=400)
+
+        if email :
+            try:
+                otp = generate_otp(email)
+                print('------------ OTP code for email --------------')
+                print(f'otp : {otp}')
+                print('-----------------------------------------------')
+
+
+                # otp = generate_otp(email)
+                # send_mail(
+                #     subject='your OTP code',
+                #     message=f'your OPT code is : {otp}',
+                #     from_email='farzad3467@gmail.com',
+                #     recipient_list=[email],
+                # )
+                return Response ({'message':'OTP send successfully'}, status=200)
+            except APIException as e :
+                return Response ({'error':str(e)}, status=400)
+
+
+        elif phone :
+            try:
+                otp = generate_otp(phone)
+                print('------------ OTP code for mobile --------------')
+                print(f'otp : {otp}')
+                print('-----------------------------------------------')
+
+            #     otp = generate_otp(phone)
+            #     api = KavenegarAPI('556D6F4E684E74342B74516F4F6A694372593338786D4B646A2F554A736D464C5648794535595173306F773D')
+            #     print('api')
+
+            #     params = {
+            #         'sender': '20006535',
+            #         'receptor': '9305489152',
+            #         'message': f'کد تایید شما: {otp}',
+            #     }
+            #     print(params)
+            #     print('params')
+
+            #     api.sms_send(params)
+            #     print('sms_send')
+
+                return Response({'message':'OTP code send'},status=200)
+            except APIException as e :
+                return Response ({'error':str(e)}, status=400)
+
+
+class VerifyOTPView(APIView):
+    """
+        verifu otp code and delete otp
+    """
+    def post (self , request):
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        otp = request.data.get('otp')
+
+        identifier = email if email else phone
+        cached_otp = get_otp(identifier)
+
+        if cached_otp == otp:
+            delete_otp(identifier)
+            user = get_object_or_404(User, email=email) if email else get_object_or_404(User, phone=phone)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=200)
+        else:
+            return Response({'error': 'Invalid or expired OTP'}, status=400)
