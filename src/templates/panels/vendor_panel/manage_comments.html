@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}نظرات کاربران{% endblock %}
+{% block content %}
+</head>
+<body class="bg-light">
+
+<div class="container">
+  <h2 class="mb-4 text-center">نظرات مربوط به محصولات شما</h2>
+  <div id="vendor-comments-list">
+  </div>
+  <a href="http://127.0.0.1:8000/register/vendor_panel/" class="return-btn w-50 mt-2">بازگشت</a>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script>
+  const commentsList = document.getElementById('vendor-comments-list');
+  const accessToken = localStorage.getItem('access_token');
+
+  function fetchVendorComments() {
+    fetch('/vendors/manage_comments/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      commentsList.innerHTML = '';
+      if (data.length === 0) {
+        commentsList.innerHTML = '<p class="text-center">هیچ نظری برای محصولات شما ثبت نشده است.</p>';
+      } else {
+        data.forEach(review => {
+        console.log('Review object:', review); 
+
+          const reviewCard = document.createElement('div');
+          reviewCard.className = 'card p-3 mb-3 shadow-sm';
+          reviewCard.innerHTML = `
+            <div class="d-flex align-items-center mb-2">
+              <img src="${review.product_image}" alt="عکس محصول" class="me-3 rounded" style="width: 80px; height: 80px; object-fit: cover;">
+              <div>
+                <h5 class="mb-0">${review.product_name}</h5>
+                <small class="text-muted">وضعیت نظر: ${review.status}</small><br>
+                <small class="text-muted">توسط: ${review.customer_username}</small>
+              </div>
+            </div>
+            <p><strong>متن نظر:</strong> ${review.comment}</p>
+            
+            <div class="d-flex justify-content-end">
+              ${review.status === "pending" ? `
+                <button class="btn btn-success btn-sm mx-1" onclick="updateCommentsStatus('${review.id}', 'approved')">تایید</button>
+                <button class="btn btn-danger btn-sm mx-1" onclick="updateCommentsStatus('${review.id}', 'rejected')">رد</button>
+              ` : ''}
+            </div>
+          `;
+          commentsList.appendChild(reviewCard);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('خطا در دریافت نظرات:', error);
+      commentsList.innerHTML = '<p class="text-center text-danger">خطا در دریافت نظرات.</p>';
+    });
+  }
+
+  function updateCommentsStatus(reviewId, status) {
+    const accessToken = localStorage.getItem('access_token');
+    
+    fetch(`/vendors/manage_comments/${reviewId}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken,
+      },
+      body: JSON.stringify({ status: status })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('وضعیت نظر با موفقیت به روز شد.');
+        fetchVendorComments(); // برای به روز رسانی لیست نظرات
+      } else {
+        alert('خطا در به روز رسانی وضعیت نظر.');
+      }
+    })
+    .catch(error => {
+      console.error('خطا در ارسال درخواست:', error);
+      alert('خطا در ارسال درخواست.');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchVendorComments);
+</script>
+{% endblock %}
+</body>
+</html>

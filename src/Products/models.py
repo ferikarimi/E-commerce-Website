@@ -4,6 +4,7 @@ from Accounts.models import User
 from django.core.validators import MinValueValidator , MaxValueValidator
 
 
+
 class Category (models.Model):
     class Meta:
         verbose_name_plural = "Categories | دسته بندی‌ها"
@@ -25,7 +26,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8 , decimal_places=2)
     image = models.ImageField(upload_to='product_images' , null=True , blank=True)
     stock = models.IntegerField()
-    rating = models.DecimalField(max_digits=2 , decimal_places=1 , default=0.0 , validators=[MinValueValidator(0.0) , MaxValueValidator(5.0)])
+    # rating = models.DecimalField(max_digits=2 , decimal_places=1 , default=0.0 , validators=[MinValueValidator(0.0) , MaxValueValidator(5.0)])
     average_rating = models.FloatField(default=None , null=True, blank=True)
 
     sold_count = models.IntegerField(default=0)
@@ -43,8 +44,6 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
-    
-
 
 
 class Discount(models.Model):
@@ -57,24 +56,33 @@ class Discount(models.Model):
     is_percentage = models.BooleanField(default=True)
 
 
-class Reviews(models.Model):
+class Comments(models.Model):
     class Meta:
-        verbose_name_plural = "Reviews | نظرات"
+        verbose_name_plural = "Comments | نظرات"
 
-    RATING_CHOICE_FIELD = {
+    STATUS_CHOICE_FIELDS = [
+        ('pending', 'pending'),
+        ('approved', 'approved') ,
+        ('rejected' , 'rejected')
+    ]
+    customer = models.ForeignKey(User , on_delete=models.CASCADE)
+    product = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='product_comments')
+    comment = models.TextField(null=True, blank=True)
+    status = models.CharField(max_length=8 , choices=STATUS_CHOICE_FIELDS ,default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Rating(models.Model):
+    class Meta:
+        verbose_name_plural = "Rating | امتیازها"
+
+    RATING_CHOICE_FIELD = [
         (1 , '1'),
         (2 , '2'),
         (3 , '3'),
         (4 , '4'),
         (5 , '5'),
-    }
-    STATUS_CHOICE_FIELDS = {
-        ('pending', 'pending'),
-        ('approved', 'approved') ,
-        ('rejected' , 'rejected')
-    }
+    ]
     customer = models.ForeignKey(User , on_delete=models.CASCADE)
-    product = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='product_review')
+    product = models.ForeignKey(Product , on_delete=models.CASCADE , related_name='product_rating')
     rating = models.IntegerField(choices=RATING_CHOICE_FIELD , default=None , null=True, blank=True)
-    comment = models.TextField()
-    status = models.CharField(max_length=8 , choices=STATUS_CHOICE_FIELDS ,default='pending')

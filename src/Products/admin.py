@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from .models import Category , Product , Discount , Reviews
+from .models import Category , Product , Discount , Comments , Rating
 
 
 
@@ -32,8 +32,17 @@ class DiscountAdmin(admin.ModelAdmin):
     list_display = ['product', 'amount', 'is_percentage']
 
 
-@admin.register(Reviews)
-class ReviewsAdmin(admin.ModelAdmin):
-    search_fields = ["customer"]
+@admin.register(Comments)
+class CommentsAdmin(admin.ModelAdmin):
+    pass
+    # search_fields = ["customer"]
 
-    list_display = ["customer" , "status"]
+    # list_display = ["customer" , "status"]
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    pass
+    # search_fields = ["customer"]
+
+    # list_display = ["customer" , "status"]

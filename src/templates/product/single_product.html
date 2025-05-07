@@ -24,7 +24,7 @@
                 <div class="card-header bg-light">
                     <h4 class="mb-0">نظرات کاربران</h4>
                 </div>
-                <div class="card-body" id="reviews">
+                <div class="card-body" id="comments">
                     <!-- نظرات اینجا لود می‌شود -->
                 </div>
             </div>
@@ -108,7 +108,7 @@
         }
         
         fetchProductDetails(productId);
-        fetchReviews(productId);
+        fetchComments(productId);
         setupReviewForm(productId);
     });
 
@@ -136,24 +136,24 @@
         `;
     }
 
-    function renderReviews(reviews) {
-        const container = document.getElementById('reviews');
+    function renderComments(comments) {
+        const container = document.getElementById('comments');
         
-        if (!reviews || reviews.length === 0) {
+        if (!comments || comments.length === 0) {
             container.innerHTML = '<p class="text-muted text-center py-3">هنوز نظری ثبت نشده است.</p>';
             return;
         }
         
         let html = '<div class="list-group list-group-flush">';
-        reviews.forEach(review => {
+            comments.forEach(comment => {
 
             html += `
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between mb-2">
-                        <strong>${review.customer_name || 'کاربر ناشناس'}</strong>
-                        <small class="text-muted">${new Date(review.created_at).toLocaleDateString('fa-IR')}</small>
+                        <strong>کاربر : ${comment.customer_name || 'کاربر ناشناس'}</strong>
+                        <small class="text-muted">${new Date(comment.created_at).toLocaleDateString('fa-IR')}</small>
                     </div>
-                    <p class="mb-0">${review.comment}</p>
+                    <p class="mb-0">نظر : ${comment.comment}</p>
                 </div>
             `;
         });
@@ -175,13 +175,13 @@
             });
     }
 
-    function fetchReviews(productId) {
-        fetch(`/product/product_reviews/${productId}/`)
+    function fetchComments(productId) {
+        fetch(`/product/product_comments/${productId}/`)
             .then(response => {
                 if (!response.ok) throw new Error('مشکل در دریافت نظرات');
                 return response.json();
             })
-            .then(reviews => renderReviews(reviews))
+            .then(comments => renderComments(comments))
             .catch(error => {
                 showMessage(error.message, 'warning');
                 console.error('Error:', error);
@@ -210,7 +210,7 @@
             return;
         }
 
-        fetch(`/product/product_reviews/${productId}/`, {
+        fetch(`/product/product_comments/${productId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -227,7 +227,7 @@
         .then(data => {
             document.getElementById('reviewForm').reset();
             showMessage('نظر شما با موفقیت ثبت شد.', 'success');
-            fetchReviews(productId);
+            fetchComments(productId);
         })
         .catch(error => {
             const msg = error.detail || 'ارسال نظر با خطا مواجه شد.';

@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
-from .serializers import ReviewsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , EditSingleProductSerializer , GetSingleProductReviewsSerializer , SingleProductSerializer , SearchProductSerializer , SendReviewsForProductSerializer ,  SendRatingForProductSerializer , ShowProductForReviewsSerializer
+from .serializers import CommentsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , GetSingleProductCommentsSerializer , SingleProductSerializer , SearchProductSerializer , SendCommentsForProductSerializer ,  SendRatingForProductSerializer , ShowProductForRatingSerializer
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated 
 from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator ,IsVendorOrManager
 from rest_framework.response import Response
-from .models import Reviews , Product
+from .models import Product , Rating , Comments
 from Vendors.models import Vendors , Shop 
 from Cart.models import Orders , OrderDetail
 from rest_framework.pagination import PageNumberPagination
@@ -13,22 +13,23 @@ from rest_framework import generics , filters
 from Accounts.models import User
 
 
-class UserReviews(APIView):
+
+class UserComments(APIView):
     """
-        get user all reviews
+        get user all comments
     """
     # permission_classes = [IsAuthenticated]
     
     def get (self , request):
         user = request.user
-        user_reviews = Reviews.objects.filter(customer_id=user)
-        serializer = ReviewsSerializer(user_reviews , many=True)
+        user_comments = Comments.objects.filter(customer_id=user)
+        serializer = CommentsSerializer(user_comments , many=True)
         return Response (serializer.data)
 
 
 class AddProduct(APIView):
     """
-        add product 
+        vendor can add product to shop
     """
     # permission_classes = [IsAuthenticatedVendor]
     
@@ -55,25 +56,25 @@ class VendorsProduct(APIView):
 
     def get(self , request):
         vendor = Vendors.objects.get(user=request.user)
-        all_product = Product.objects.filter(vendor_id = vendor)
-        serializer = VendorProductSerializer(all_product , many=True)
+        vendor_product = Product.objects.filter(vendor_id = vendor)
+        serializer = VendorProductSerializer(vendor_product , many=True)
         return Response(serializer.data)
 
 
 class EditProduct (APIView):
     """
-        edit product
+        vendor can edit products
     """
     # permission_classes = [IsAuthenticatedVendor , IsVendorManager]
 
     def get (self , request , pk):
         product = get_object_or_404(Product , pk=pk)
-        serializer = EditSingleProductSerializer(product)
+        serializer = EditProductSerializer(product)
         return Response (serializer.data)
 
-    def put (self , request , pk):
+    def patch (self , request , pk):
         product = get_object_or_404(Product , pk=pk)
-        serializer = EditProductSerializer (product , data=request.data)
+        serializer = EditProductSerializer (product , data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -82,7 +83,7 @@ class EditProduct (APIView):
 
 class ProductPagination(PageNumberPagination):
     """
-        pagination for product page in 'home.html'
+        pagination for products
     """
     page_size = 8
     page_size_query_param = 'page_size'
@@ -112,10 +113,10 @@ class SearchProducts(generics.ListAPIView):
             queryset = queryset.order_by('-price')
 
         elif sort_by == 'lowest_score':
-            queryset = queryset.order_by('rating')
+            queryset = queryset.order_by('average_rating')
 
         elif sort_by == 'highest_score':
-            queryset = queryset.order_by('-rating')
+            queryset = queryset.order_by('-average_rating')
 
         elif sort_by == 'badseller':
             queryset = queryset.order_by('sold_count')
@@ -142,36 +143,20 @@ class SingleProduct(APIView):
         return Response (serializer.data , status=200)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class ProductReviews(APIView):
+class ProductComments(APIView):
     """
-        get product reviews 
+        get product Comments 
     """
     def get (self , request , id):
         product = get_object_or_404(Product , id=id)
-        review = Reviews.objects.filter(product=product ,status='approved')
-        serializer = GetSingleProductReviewsSerializer (review , many=True)
+        review = Comments.objects.filter(product=product ,status='approved')
+        serializer = GetSingleProductCommentsSerializer (review , many=True)
         return Response (serializer.data , status=200)
     
     def post (self , request , id):
         product = get_object_or_404(Product, id=id)
         customer = request.user
-        serializer = SendReviewsForProductSerializer(data=request.data)
+        serializer = SendCommentsForProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(customer=customer ,product=product)
             return Response(serializer.data , status=201)
@@ -191,17 +176,18 @@ class SendRatingForProduct(APIView):
 
         unrated_products = []
         for product in purchased_products:
-            has_rated = Reviews.objects.filter(customer=user, product=product).exists()
+            has_rated = Rating.objects.filter(customer=user, product=product).exists()
             if not has_rated:
                 unrated_products.append(product)
-
-
-        serializer = ShowProductForReviewsSerializer (unrated_products , many=True)
+        serializer = ShowProductForRatingSerializer (unrated_products , many=True)
         return Response (serializer.data , status=200)
 
     def post(self , request):
+        print(request.data)
         serializer = SendRatingForProductSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data , status=201)
-        return Response(serializer.errors , status=400)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors , status=400)

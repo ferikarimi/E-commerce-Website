@@ -1,6 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
+
 
 
 class User (AbstractUser):
@@ -8,7 +9,6 @@ class User (AbstractUser):
         verbose_name_plural = "Users | کاربران"
         db_table='User'
 
-        
     phone = PhoneNumberField(unique=True)
     birth_date = models.DateField(null=True , blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
