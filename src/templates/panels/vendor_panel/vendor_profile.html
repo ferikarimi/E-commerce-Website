@@ -21,15 +21,11 @@
     </div>
     <div class="mb-3">
       <label class="form-label">نام کاربری</label>
-      <input type="text" class="form-control ltr-input" name="username" readonly>
+      <input type="text" class="form-control ltr-input" name="username">
     </div>
     <div class="mb-3">
       <label class="form-label">ایمیل</label>
-      <input type="email" class="form-control ltr-input" name="email" readonly>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">نقش</label>
-      <input type="text" class="form-control ltr-input" name="role" readonly>
+      <input type="email" class="form-control ltr-input" name="email">
     </div>
     <div class="mb-3">
       <label class="form-label">شماره تلفن</label>
@@ -37,7 +33,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label">تاریخ تولد</label>
-      <input type="date" class="form-control ltr-input" name="birth_date">
+      <input type="date" class="form-control ltr-input" name="birth_date" required>
     </div>
 
     <div class="mb-3">
@@ -59,16 +55,16 @@
 
   
   // بارگذاری اطلاعات پروفایل
-  fetch('/vendors/vendor_profile/', {
+  fetch('/users/user_profile/', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + accessToken,
-      
     }
   })
   .then(response => response.json().then(json => ({status: response.status, body: json})))
   .then(({status, body}) => {
+    console.log("Response body:", body);
     if (status === 200) {
       for (const key in body) {
         const field = form.elements.namedItem(key);
@@ -87,10 +83,14 @@
     e.preventDefault();
     const formData = new FormData(form);
     const data = {};
-    formData.forEach((value, key) => { data[key] = value });
+    formData.forEach((value, key) => {
+        if (key !== 'role') {
+            data[key] = value;
+        }
+    });
 
-    fetch('/vendors/vendor_profile/', {
-      method: 'PUT',
+    fetch('/users/user_profile/', {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken,

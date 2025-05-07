@@ -4,7 +4,6 @@ from .models import Vendors
 
 
 
-
 class IsVendorOrManager(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated :
@@ -16,14 +15,13 @@ class IsVendorOrManager(BasePermission):
             return False
 
 
-
 class IsVendorOwner (permissions.BasePermission):
     def has_permission(self, request, view):
         try :
             return request.user.is_authenticated and Vendors.objects.get(user=request.user).role == 'owner'
         except Vendors.DoesNotExist :
             return False
-        
+
 
 class IsVendorManager (permissions.BasePermission):
     def has_permission(self, request, view):
@@ -31,7 +29,7 @@ class IsVendorManager (permissions.BasePermission):
             return request.user.is_authenticated and Vendors.objects.get(user=request.user).role == 'manager'
         except Vendors.DoesNotExist :
             return False
-        
+
 
 class IsVendorOperator (permissions.BasePermission):
     def has_permission(self, request, view):
@@ -39,7 +37,7 @@ class IsVendorOperator (permissions.BasePermission):
             return request.user.is_authenticated and Vendors.objects.get(user=request.user).role == 'operator'
         except Vendors.DoesNotExist :
             return False
-        
+
 
 class IsAuthenticatedVendor (BasePermission) :
     def has_permission(self, request, view):

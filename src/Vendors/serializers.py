@@ -3,12 +3,15 @@ from Vendors.models import  Vendors , VendorCode , Shop
 from Accounts.models import User
 from phonenumber_field.serializerfields import PhoneNumberField
 from django.shortcuts import get_object_or_404
-from Products.models import Shop,Product,Reviews
+from Products.models import Shop,Product,Comments , Rating
 import jdatetime
 
 
 
 class VendorRegisterSerializer(serializers.ModelSerializer):
+    """
+        serializer for register a vendor and create a shop for vendor
+    """
     vendor_code = serializers.IntegerField(write_only=True)
     shop_name = serializers.CharField(write_only=True)
     shop_address = serializers.CharField(write_only=True)
@@ -66,47 +69,10 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
         return vendor
 
 
-class VendorProfileSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(source='user.first_name')
-    last_name = serializers.CharField(source='user.last_name')
-    username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
-    phone = PhoneNumberField(source='user.phone', read_only=True)
-    birth_date = serializers.CharField(source='user.birth_date')
-    created_at_shamsi = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Vendors
-        fields = [
-            'first_name' , 'last_name','username','email','role' , 'phone' ,'birth_date','created_at' , 'created_at_shamsi'
-        ]
-        read_only_fields = ['username' , 'email' ,'role' , 'created_at' ,'phone' , 'created_at_shamsi' ]
-
-    def get_created_at_shamsi (self , obj):
-        if obj.created_at :
-            created_at = obj.created_at
-            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d - %H:%M:%S')
-        return None
-
-    def update (self , instance , validated_data):
-        user_data = validated_data.pop('user',{})
-
-        for attr , value in validated_data.items():
-            setattr(instance , attr , value)
-        instance.save()
-
-        user = instance.user
-        if 'first_name' in user_data :
-            user.first_name = user_data['first_name']
-
-        if 'last_name' in user_data :
-            user.last_name = user_data['last_name']
-        user.save()
-        return instance
-
-
 class VendorShopSerializer(serializers.ModelSerializer):
+    """
+        serializer for get shop and update shop detail 
+    """
     created_at_shamsi = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
 
@@ -129,11 +95,14 @@ class VendorShopSerializer(serializers.ModelSerializer):
 
 
 class VendorCodeSerializer(serializers.ModelSerializer):
+    """
+        serializer for add vendor code. admin caan see and create a code for register vendor
+    """
     created_at_shamsi = serializers.SerializerMethodField()
 
     class Meta :
         model = VendorCode
-        fields = ['code','is_used','created_at' , 'created_at_shamsi']
+        fields = ['code','is_used','created_at','created_at_shamsi']
 
     def get_created_at_shamsi (self , obj):
         if obj.created_at :
@@ -144,7 +113,10 @@ class VendorCodeSerializer(serializers.ModelSerializer):
 
 
 class RegisterManagerSerializer (serializers.ModelSerializer):
-    username = serializers.CharField(write_only=True)
+    """
+        serializer for employee 'manager' or 'operator' for vendor shop
+    """
+    username = serializers.CharField(source='user.username')
     role = serializers.ChoiceField(choices=[('manager', 'manager'), ('operator', 'operator')])
 
     class Meta :
@@ -175,27 +147,13 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
         return vendor
 
 
-class ManagerSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username')
-    created_at_shamsi = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Vendors
-        fields = ['username', 'role', 'created_at' , 'created_at_shamsi']
-
-    def get_created_at_shamsi (self , obj):
-        if obj.created_at :
-            created_at = obj.created_at
-            jalili_data = jdatetime.datetime.fromgregorian(datetime=created_at)
-            return jalili_data.strftime('%Y/%m/%d')
-        return None
-
-
 class AllShopSerializer(serializers.ModelSerializer):
+    """
+        serializer for show all shop and get count product for shops. with jalili date
+    """
     created_at_shamsi = serializers.SerializerMethodField()
     product_count = serializers.SerializerMethodField()
     phone = serializers.CharField(source='vendor.phone' , read_only=True)
-
 
     class Meta :
         model = Shop
@@ -216,55 +174,20 @@ class AllShopSerializer(serializers.ModelSerializer):
         return product_count
 
 
-
-
 class ShowOneShopProductsSerializer (serializers.ModelSerializer):
+    """
+        serializer for show all product af one shop
+    """
     class Meta :
         model = Product
         fields = ['category','name','description','price','stock','image','id','final_price' ,'average_rating' , 'store_name']
         read_only_fields = ['category','name','description','price','stock','image','id','final_price','average_rating','store_name']
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class SingleShopSerializer (serializers.ModelSerializer):
+    """
+        serializer for show shop detail
+    """
     phone = serializers.CharField(source='vendor.phone' , read_only=True)
 
     class Meta :
@@ -272,13 +195,14 @@ class SingleShopSerializer (serializers.ModelSerializer):
         fields = ['name','address','phone','description','field']
 
 
-
-
-class ManageReviewsSerializer (serializers.ModelSerializer):
+class ManageCommentsSerializer (serializers.ModelSerializer):
+    """
+        serializer for manage comments
+    """
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_image = serializers.ImageField(source='product.image', read_only=True)
     customer_username = serializers.CharField(source='customer.username', read_only=True)
 
     class Meta:
-        model = Reviews
+        model = Comments
         fields = ['id','product','comment','status','product_name','product_image','customer_username']

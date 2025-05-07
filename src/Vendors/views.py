@@ -1,16 +1,14 @@
 from rest_framework.response import Response
-from .serializers import VendorRegisterSerializer , VendorProfileSerializer , VendorShopSerializer , VendorCodeSerializer , RegisterManagerSerializer , ManagerSerializer , AllShopSerializer , SingleShopSerializer , ShowOneShopProductsSerializer , ManageReviewsSerializer
+from .serializers import VendorRegisterSerializer , VendorShopSerializer , VendorCodeSerializer , RegisterManagerSerializer , AllShopSerializer , SingleShopSerializer , ShowOneShopProductsSerializer , ManageCommentsSerializer
 from rest_framework.permissions import IsAuthenticated , IsAdminUser , AllowAny
 from .models import Vendors , VendorCode 
 from rest_framework.views import APIView
 from .permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator
 from django.shortcuts import get_object_or_404
-from Products.models import Shop ,Product , Reviews
+from Products.models import Shop ,Product , Comments , Rating
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics , filters
 from Products.views import ProductPagination
-
-
 
 
 
@@ -30,26 +28,6 @@ class RegisterVendor (APIView):
             serializer.save()
             print("user become vendor")
             return Response({'message':'vendor succeessfully registered !'} , status=201)
-        return Response(serializer.errors , status=400)
-
-
-class VendorProfile(APIView):
-    """
-        get and update vendor profile
-    """
-    permission_classes = [IsAuthenticatedVendor]
-
-    def get (self , request):
-        vendor = get_object_or_404(Vendors ,user=request.user)
-        serializer = VendorProfileSerializer(vendor)
-        return Response (serializer.data , status=200)
-    
-    def put (self , request):
-        vendor = get_object_or_404(Vendors ,user=request.user)
-        serializer = VendorProfileSerializer(vendor , data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message':'profile updated successfuly !'} , status=200)
         return Response(serializer.errors , status=400)
 
 
@@ -103,7 +81,7 @@ class RegisterManager (APIView):
     def get (self , request):
         vendor = request.user.vendors
         member = vendor.vendor_member.all()
-        serializer = ManagerSerializer(member , many=True)
+        serializer = RegisterManagerSerializer(member , many=True)
         return Response(serializer.data , status=200)
 
     def post (self , request):
@@ -128,7 +106,6 @@ class ShopPagination (PageNumberPagination):
     """
     page_size = 3
     page_size_query_param = 'page_size'
-    # max_page_size = 12
     
 
 class AllShopView(generics.ListAPIView):
@@ -179,7 +156,8 @@ class GetShopProductView (generics.ListAPIView):
         show products of shop
         sorting and searching
     """
-    serializer_class = [ShowOneShopProductsSerializer]
+    permission_classes = [AllowAny]
+    serializer_class = ShowOneShopProductsSerializer
     pagination_class = ProductPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ["name" , "category__name"]
@@ -218,55 +196,26 @@ class GetShopProductView (generics.ListAPIView):
         return queryset
 
 
-
-    permission_classes = [AllowAny]
-
-    def get (self , request , id):
-        shop = get_object_or_404(Shop ,id=id)
-        products = Product.objects.filter(store_name=shop)
-        serializer = ShowOneShopProductsSerializer (products , many=True)
-        return Response (serializer.data , status=200)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class ManageReviews (APIView):
+class ManageComments (APIView):
     """
-        manage vendor`s product reviews
+        manage vendor`s product comments
     """
     permission_classes = [IsAuthenticatedVendor]
     def get (self , request):
         vendor = Vendors.objects.get(user=request.user)
         shop = get_object_or_404(Shop , vendor=vendor)
         products = Product.objects.filter(store_name=shop)
-        reviews = Reviews.objects.filter(product__in=products)
-        serializer = ManageReviewsSerializer (reviews , many=True)
+        comments = Comments.objects.filter(product__in=products)
+        serializer = ManageCommentsSerializer (comments , many=True)
         return Response (serializer.data , status=200)
     
     def patch(self, request, *args, **kwargs):
         review_id = kwargs.get("id")
-        review = get_object_or_404(Reviews, id=review_id)
+        comment = get_object_or_404(Comments, id=review_id)
     
         status = request.data.get('status')
         if status not in ['approved', 'rejected']:
             return Response({"detail": "وضعیت نامعتبر است."}, status=400)
-        review.status = status
-        review.save()
+        comment.status = status
+        comment.save()
         return Response({"success": True, "detail": "وضعیت نظر به روز شد."}, status=200)
