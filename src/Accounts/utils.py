@@ -3,7 +3,7 @@ from django.http import HttpResponse
 
 
 
-RATE_LIMIT = 3
+RATE_LIMIT = 10
 TIME_WINDOW = 60
 
 def rate_limit(view_function):

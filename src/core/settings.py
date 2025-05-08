@@ -56,10 +56,9 @@ INSTALLED_APPS = [
     'Cart',
     'config',
     'Customers',
-    'Dashboard',
     'Products',
     'Vendors',
-    'Website',
+
 ]
 
 # X_FRAME_OPTIONS = 'SAMEORIGIN'

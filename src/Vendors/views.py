@@ -24,9 +24,7 @@ class RegisterVendor (APIView):
         
         serializer = VendorRegisterSerializer(data=request.data , context={'request':request})
         if serializer.is_valid():
-            print("serializer is valid")
             serializer.save()
-            print("user become vendor")
             return Response({'message':'vendor succeessfully registered !'} , status=201)
         return Response(serializer.errors , status=400)
 

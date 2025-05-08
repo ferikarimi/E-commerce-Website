@@ -8,5 +8,5 @@ urlpatterns = [
     path('vendor_orders/<int:id>/', VendorOrdersView.as_view() , name='delete_vendor_orders'),
     path('user_orders/', UserOrdersView.as_view() , name='get_user_orders'),
     path('user_orders/<int:id>/', UserOrdersView.as_view() , name='put_user_orders'),
-    path('user_order_detail/', UserOrderDetail.as_view() , name='user-order-detail'),
+    path('user_order_detail/<int:id>/', UserOrderDetail.as_view() , name='user-order-detail'),
 ]

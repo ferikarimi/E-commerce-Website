@@ -139,7 +139,7 @@
             }
             
             fetch(`/cart/user_orders/${orderId}/`, {
-                method: 'DELETE',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('access_token')

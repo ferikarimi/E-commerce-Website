@@ -16,11 +16,22 @@
 {% block custom_script %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetchOrders();
+            fetchOrderDetail();
         });
 
-        function fetchOrders() {
-            fetch('/cart/user_order_detail/', {
+        function getOrderIdFromURL() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 2];
+        }
+
+        function fetchOrderDetail() {
+            const orderId = getOrderIdFromURL();
+            if (!orderId) {
+                showMessage('شناسه سفارش یافت نشد', 'danger');
+                return;
+            }
+        
+            fetch(`/cart/user_order_detail/${orderId}/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,18 +40,19 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('مشکل در دریافت سفارش‌ها');
+                    throw new Error('مشکل در دریافت جزئیات سفارش');
                 }
                 return response.json();
             })
             .then(data => {
-                renderOrders(data);
+                renderOrders(data); // همون تابعی که داده‌ها رو نشون میده
             })
             .catch(error => {
                 showMessage(error.message, 'danger');
                 console.error('Error:', error);
             });
         }
+
 
         function renderOrders(data) {
             const container = document.getElementById('orders-container');
@@ -65,37 +77,37 @@
         }
 
 
-        function cancelOrder(orderId) {
-            if (!orderId) {
-                showMessage('شناسه سفارش نامعتبر است', 'danger');
-                return;
-            }
-            if (!confirm('آیا از لغو این سفارش مطمئن هستید؟')) {
-                return;
-            }
+        // function cancelOrder(orderId) {
+        //     if (!orderId) {
+        //         showMessage('شناسه سفارش نامعتبر است', 'danger');
+        //         return;
+        //     }
+        //     if (!confirm('آیا از لغو این سفارش مطمئن هستید؟')) {
+        //         return;
+        //     }
             
-            fetch(`/cart/user_orders/${orderId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('مشکل در لغو سفارش');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showMessage('سفارش با موفقیت لغو شد', 'success');
-                fetchOrders(); // بارگذاری مجدد سفارش‌ها
-            })
-            .catch(error => {
-                showMessage(error.message, 'danger');
-                console.error('Error:', error);
-            });
-        }
+        //     fetch(`/cart/user_orders/${orderId}/`, {
+        //         method: 'DELETE',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        //         }
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('مشکل در لغو سفارش');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         showMessage('سفارش با موفقیت لغو شد', 'success');
+        //         fetchOrders(); // بارگذاری مجدد سفارش‌ها
+        //     })
+        //     .catch(error => {
+        //         showMessage(error.message, 'danger');
+        //         console.error('Error:', error);
+        //     });
+        // }
 
         function showMessage(message, type) {
             const messageBox = document.getElementById('message-box');

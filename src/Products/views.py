@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from .serializers import CommentsSerializer , AddProductSerializer , VendorProductSerializer , EditProductSerializer , GetSingleProductCommentsSerializer , SingleProductSerializer , SearchProductSerializer , SendCommentsForProductSerializer ,  SendRatingForProductSerializer , ShowProductForRatingSerializer
 
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated 
+from rest_framework.permissions import IsAuthenticated , AllowAny
 from Vendors.permissions import IsAuthenticatedVendor , IsVendorManager , IsVendorOperator ,IsVendorOrManager
 from rest_framework.response import Response
 from .models import Product , Rating , Comments
@@ -16,7 +16,7 @@ from Accounts.models import User
 
 class UserComments(APIView):
     """
-        get user all comments
+        get all comments of single user
     """
     # permission_classes = [IsAuthenticated]
     
@@ -34,9 +34,7 @@ class AddProduct(APIView):
     # permission_classes = [IsAuthenticatedVendor]
     
     def post (self , request):
-        print(f"User: {request.user}, Is Authenticated: {request.user.is_authenticated}")
         vendor = get_object_or_404(Vendors , user=request.user)
-        print(f"Vendor Role: {vendor.role}")
         shop = get_object_or_404(Shop , vendor=vendor)
         serializer = AddProductSerializer(data=request.data)
         if serializer.is_valid():
@@ -67,13 +65,13 @@ class EditProduct (APIView):
     """
     # permission_classes = [IsAuthenticatedVendor , IsVendorManager]
 
-    def get (self , request , pk):
-        product = get_object_or_404(Product , pk=pk)
+    def get (self , request , id):
+        product = get_object_or_404(Product , id=id)
         serializer = EditProductSerializer(product)
         return Response (serializer.data)
 
-    def patch (self , request , pk):
-        product = get_object_or_404(Product , pk=pk)
+    def patch (self , request , id):
+        product = get_object_or_404(Product , id=id)
         serializer = EditProductSerializer (product , data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -145,8 +143,9 @@ class SingleProduct(APIView):
 
 class ProductComments(APIView):
     """
-        get product Comments 
+        get single product Comments 
     """
+    permission_classes = [AllowAny]
     def get (self , request , id):
         product = get_object_or_404(Product , id=id)
         review = Comments.objects.filter(product=product ,status='approved')
@@ -155,10 +154,10 @@ class ProductComments(APIView):
     
     def post (self , request , id):
         product = get_object_or_404(Product, id=id)
-        customer = request.user
+        user = request.user
         serializer = SendCommentsForProductSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(customer=customer ,product=product)
+            serializer.save(customer=user ,product=product)
             return Response(serializer.data , status=201)
         return Response(serializer.errors , status=400)
 
@@ -183,11 +182,9 @@ class SendRatingForProduct(APIView):
         return Response (serializer.data , status=200)
 
     def post(self , request):
-        print(request.data)
         serializer = SendRatingForProductSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data , status=201)
         else:
-            print(serializer.errors)
             return Response(serializer.errors , status=400)

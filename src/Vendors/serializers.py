@@ -40,15 +40,12 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
         shop_address = validated_data.pop('shop_address')
         shop_field = validated_data.pop('shop_field')
 
-        print("Creating Vendor...")
         vendor = Vendors.objects.create(
             phone=user.phone,
             user=user,
             vendor_code=code_obj,
             role='owner',
         )
-        print("Vendor created")
-        print("Creating shop...")
         if not user.phone:
             raise serializers.ValidationError('Phone number is required. Please complete your profile first.')
 
@@ -59,7 +56,6 @@ class VendorRegisterSerializer(serializers.ModelSerializer):
             # phone = user.phone,
             field = shop_field ,
         )
-        print("Shop created")
     
         code_obj.is_used = True
         code_obj.save()
@@ -124,7 +120,8 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
         fields =['username','role']
     
     def create (self , validated_data):
-        username = validated_data.pop('username')
+        user_data = validated_data.pop('user')
+        username = user_data['username']
         role = validated_data.pop('role')
 
         try:

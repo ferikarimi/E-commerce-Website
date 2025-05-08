@@ -19,7 +19,7 @@ class RegisterUser(APIView):
     permission_classes = [AllowAny]
 
     def post (self , request):
-        serializer = UserRegisterSerializer(data=request.data)
+        serializer = UserRegisterSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data , status=201)
@@ -39,7 +39,6 @@ class UserProfile(APIView):
 
     def patch (self , request):
         request.data.pop('created_at_shamsi', None)
-        print("PATCH DATA:", request.data)
         user = request.user
         serializer = UserProfileSerializer(user , data=request.data , partial=True)
         if serializer.is_valid():
@@ -120,7 +119,6 @@ class CustomLoginView(APIView):
             except APIException as e :
                 return Response ({'error':str(e)}, status=400)
 
-
         elif phone :
             try:
                 otp = generate_otp(phone)
@@ -134,7 +132,7 @@ class CustomLoginView(APIView):
 
             #     params = {
             #         'sender': '20006535',
-            #         'receptor': '9305489152',
+            #         'receptor': '09305489152',
             #         'message': f'کد تایید شما: {otp}',
             #     }
             #     print(params)
@@ -170,3 +168,6 @@ class VerifyOTPView(APIView):
             }, status=200)
         else:
             return Response({'error': 'Invalid or expired OTP'}, status=400)
+        
+
+# get access token f

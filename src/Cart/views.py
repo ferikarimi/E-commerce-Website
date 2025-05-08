@@ -136,20 +136,16 @@ class CheckOutView (APIView):
             discount_price = 0 ,
             )
         
-        print('cart:', cart)
+
         for product_id, item in cart.items():
             product = get_object_or_404(Product , id=int(product_id))
-            print('product_id:', product_id)
-            print('item:', item)
 
             if product.stock < item['quantity'] :
                 return Response ({'message':f'not enugh stock for {product.name}'},status=400)
             
-            print(f"quantity type: {type(item['quantity'])}, value: {item['quantity']}")
             product.stock -= item['quantity']
             product.sold_count += item['quantity']
             product.save()
-            print(f"Updated product {product.id}: stock={product.stock}, sold_count={product.sold_count}")
 
             OrderDetail.objects.create(
                 product = product ,
@@ -175,7 +171,7 @@ class UserOrdersView (APIView):
         serializer = UserOrderSerializer (orders , many=True)
         return Response (serializer.data , status=200)
     
-    def delete (self , request , id):
+    def patch (self , request , id):
         user = request.user
         order = get_object_or_404(Orders , id=id , customer=user)
         
@@ -191,10 +187,10 @@ class UserOrderDetail(APIView):
     """
         get user order details
     """
-    def get(self, request):
+    def get(self, request , id):
         user= request.user
-        order = get_list_or_404(Orders , customer=user)
-        order_detail = OrderDetail.objects.filter(order__in=order)
+        order = get_object_or_404(Orders , customer=user , id=id)
+        order_detail = OrderDetail.objects.filter(order=order)
         serializer = UserOrderDetailSerializer(order_detail , many=True)
         return Response(serializer.data , status=200)
 
