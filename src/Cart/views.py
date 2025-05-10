@@ -148,6 +148,7 @@ class CheckOutView (APIView):
             product.save()
 
             OrderDetail.objects.create(
+                vendor = product.vendor ,
                 product = product ,
                 order = order ,
                 single_price = item['price'] ,

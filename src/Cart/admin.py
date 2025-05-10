@@ -24,7 +24,7 @@ class OrdersAdmin(admin.ModelAdmin):
 class OrderDetailAdmin(admin.ModelAdmin):
     search_fields = ["id"]
 
-    list_display = ["id","orders" , 'product__name' , 'quantity']
+    list_display = ["id","orders" , 'product__name' , 'quantity','vendor']
 
     def orders (self, obj):
         if obj.order:

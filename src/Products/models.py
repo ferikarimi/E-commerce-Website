@@ -26,9 +26,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8 , decimal_places=2)
     image = models.ImageField(upload_to='product_images' , null=True , blank=True)
     stock = models.IntegerField()
-    # rating = models.DecimalField(max_digits=2 , decimal_places=1 , default=0.0 , validators=[MinValueValidator(0.0) , MaxValueValidator(5.0)])
     average_rating = models.FloatField(default=None , null=True, blank=True)
-
     sold_count = models.IntegerField(default=0)
     store_name = models.ForeignKey(Shop , on_delete=models.PROTECT , related_name='product')
     created_at = models.DateTimeField(auto_now_add=True)
