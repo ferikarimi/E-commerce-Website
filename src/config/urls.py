@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_page ,login_page  , user_profile_page , register_vendor_page , user_panel , user_addresses , vendor_profile_page , vendor_panel , add_product , shop_page , all_shop , vendor_product , edit_product , user_comments , edit_shop , all_product , admin_panel , vendor_code , add_vendor_code , single_product_page , manager_panel , operator_panel , register_operator_or_manager , cart , checkout , thankyou , admin_profile , user_order , vendor_order , manage_comments , product_rating , verify_otp , user_order_detail
+from .views import register_page ,login_page  , user_profile_page , register_vendor_page , user_panel , user_addresses , vendor_profile_page , vendor_panel , add_product , shop_page , all_shop , vendor_product , edit_product , user_comments , edit_shop , all_product , admin_panel , vendor_code , add_vendor_code , single_product_page , manager_panel , operator_panel , register_operator_or_manager , cart , checkout , thankyou , admin_profile , user_order , vendor_order , manage_comments , product_rating , verify_otp , user_order_detail , total_selles_report , total_selling_product
 
 urlpatterns = [
     #________________________________ user _____________________________________
@@ -21,6 +21,9 @@ urlpatterns = [
     path('manager_panel/', manager_panel, name='manager-panel'),
     path('operator_panel/', operator_panel, name='operator-panel'),
     path('manage_comments/', manage_comments, name='manage-comments'),
+
+    path('total_selles_report/', total_selles_report, name='total_selles_report'),
+    path('total_selling_product/', total_selling_product, name='total_selling_product'),
     #____________________________________________________________________________
 
     #_______________________________ registreation ______________________________

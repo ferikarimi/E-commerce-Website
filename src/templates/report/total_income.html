@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}گزارش فروش و درآمد{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">گزارش فروش و درآمد فروشگاه</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="dateRange" class="form-label">بازه زمانی:</label>
+            <select id="dateRange" class="form-select">
+                <option value="1d" selected>1 روز گذشته</option>
+                <option value="1w">1 هفته گذشته</option>
+                <option value="1m">1 ماه گذشته</option>
+                <option value="3m">3 ماه گذشته</option>
+            </select>
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+            <button id="loadReport" class="btn btn-primary">نمایش گزارش</button>
+        </div>
+    </div>
+
+    <div id="message-box" class="alert d-none"></div>
+
+    <div class="report-cards row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">کل درآمد</h5>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-wallet fs-1 me-3 text-primary"></i>
+                        <div>
+                            <h3 id="totalIncome" class="mb-0">0</h3>
+                            <small class="text-muted">تومان</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">تعداد فروش محصولات</h5>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shopping-basket fs-1 me-3 text-success"></i>
+                        <div>
+                            <h3 id="totalSales" class="mb-0">0</h3>
+                            <small class="text-muted">عدد</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/register/vendor_panel/" class="btn btn-secondary">بازگشت به پنل فروشنده</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block custom_script %}
+<script>
+    function showMessage(message, type) {
+        const messageBox = document.getElementById('message-box');
+        messageBox.textContent = message;
+        messageBox.className = `alert alert-${type}`;
+        messageBox.classList.remove('d-none');
+        
+        setTimeout(() => {
+            messageBox.classList.add('d-none');
+        }, 5000);
+    }
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('fa-IR').format(num);
+    }
+
+    function loadReport(range) {
+        fetch(`/vendors/total_selles_report/?r=${range}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('خطا در دریافت گزارش');
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('totalIncome').textContent = formatNumber(data.total_income);
+            document.getElementById('totalSales').textContent = formatNumber(data.total_product_selles);
+        })
+        .catch(error => {
+            showMessage(error.message, 'danger');
+            console.error('Error:', error);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load initial report
+        loadReport('all');
+
+        // Setup event listener for the button
+        document.getElementById('loadReport').addEventListener('click', () => {
+            const range = document.getElementById('dateRange').value;
+            loadReport(range);
+        });
+    });
+</script>
+{% endblock %}

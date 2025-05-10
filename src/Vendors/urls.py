@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import RegisterVendor , VendorShop , VendorCodeView , RegisterManager , AllShopView , SingleShopView , GetShopProductView , ManageComments
-from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
+from .views import RegisterVendor , VendorShop , VendorCodeView , RegisterManager , AllShopView , SingleShopView , GetShopProductView , ManageComments , TotalSellesReport, TotalSellingProduct
+from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView 
 
 
 urlpatterns = [
@@ -16,4 +16,8 @@ urlpatterns = [
     path('get_shop_product/<int:id>/' ,GetShopProductView.as_view() , name='shop_product'),
     path('manage_comments/' ,ManageComments.as_view() , name='manage-comments'),
     path('manage_comments/<int:id>/' ,ManageComments.as_view() , name='manage-comments'),
+
+
+    path('total_selles_report/' ,TotalSellesReport.as_view() , name='total_selles_report'),
+    path('total_selling_product/' ,TotalSellingProduct.as_view() , name='total_selling_product'),
 ]

@@ -9,6 +9,9 @@ from Products.models import Shop ,Product , Comments , Rating
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics , filters
 from Products.views import ProductPagination
+from .utils import get_date_range
+from Cart.models import Orders , OrderDetail
+from django.db.models import Sum
 
 
 
@@ -217,3 +220,49 @@ class ManageComments (APIView):
         comment.status = status
         comment.save()
         return Response({"success": True, "detail": "وضعیت نظر به روز شد."}, status=200)
+
+
+class TotalSellesReport(APIView):
+    permission_classes = [IsAuthenticatedVendor]
+
+    def get(self, request):
+        range_code = request.query_params.get('r')
+        from_date = get_date_range(range_code)
+        vendor = request.user.vendors
+        order_detail = OrderDetail.objects.filter(product__vendor=vendor , order__status='delivered')
+        if from_date :
+            order_detail = order_detail.filter(order__order_date__gte=from_date)
+
+        total_incomes=0
+        for product in order_detail :
+            incomes=product.single_price * product.quantity
+            total_incomes += incomes
+
+        total_product_selles = order_detail.aggregate(r=Sum('quantity'))['r'] or 0
+
+        return Response({
+            'range': range_code ,
+            'total_income': total_incomes,
+            'total_product_selles': total_product_selles,
+        })
+
+
+class TotalSellingProduct(APIView):
+    permission_classes = [IsAuthenticatedVendor]
+
+    def get (self , request):
+        range_code = request.query_params.get('r')
+        from_date = get_date_range(range_code)
+        vendor = request.user.vendors
+        order_products = OrderDetail.objects.filter(product__vendor=vendor , order__status='delivered')
+
+        if from_date :
+            order_products = order_products.filter(order__order_date__gte=from_date)
+
+        best_product = order_products.values('product__name').annotate(total_sold=Sum('quantity')).order_by('-total_sold')[:10]
+
+        return Response({
+            'range': range_code ,
+            'best_product': list(best_product),
+
+        })

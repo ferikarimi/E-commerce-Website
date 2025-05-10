@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}گزارش محصولات پرفروش{% endblock %}
+{% block content %}
+
+    <div style="margin-bottom: 20px;">
+        <label for="rangeSelect">بازه زمانی:</label>
+        <select id="rangeSelect" style="margin-right: 10px;">
+            <option value="1d">1 روز گذشته</option>
+            <option value="3d">3 روز گذشته</option>
+            <option value="1w">1 هفته گذشته</option>
+            <option value="1m">1 ماه گذشته</option>
+            <option value="3m">3 ماه گذشته</option>
+        </select>
+        
+        <button id="filterBtn" class="btn btn-primary">نمایش گزارش</button>
+    </div>
+
+    <div id="message-box" class="alert d-none"></div>
+
+    <h2>گزارش 10 محصول پرفروش شما</h2>
+    <div id="product-report">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>رتبه</th>
+                    <th>نام محصول</th>
+                    <th>تعداد فروش</th>
+                </tr>
+            </thead>
+            <tbody id="product-list">
+                <!-- داده های گزارش اینجا نمایش داده می شود -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="range-info" class="mt-3 text-muted"></div>
+
+    <a href="/register/vendor_panel/" class="return-btn w-25 mt-2">بازگشت</a>
+{% endblock %}
+
+{% block custom_script %}
+<script>
+    function showMessage(message, type) {
+        const messageBox = document.getElementById('message-box');
+        messageBox.textContent = message;
+        messageBox.className = `alert alert-${type}`;
+        messageBox.classList.remove('d-none');
+        
+        setTimeout(() => {
+            messageBox.classList.add('d-none');
+        }, 5000);
+    }
+
+    function fetchReport() {
+        const rangeCode = document.getElementById('rangeSelect').value;
+        
+        fetch(`/vendors/total_selling_product/?r=${rangeCode}`, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('مشکل در دریافت گزارش');
+            return response.json();
+        })
+        .then(data => {
+            renderReport(data);
+            updateRangeInfo(data.range);
+        })
+        .catch(error => {
+            showMessage(error.message, 'danger');
+            console.error('Error loading report:', error);
+        });
+    }
+
+    function renderReport(data) {
+        const container = document.getElementById('product-list');
+        container.innerHTML = '';
+
+        if (data.best_product.length === 0) {
+            container.innerHTML = '<tr><td colspan="3">هیچ فروشی در این بازه زمانی ثبت نشده است.</td></tr>';
+            return;
+        }
+
+        data.best_product.forEach((product, index) => {
+            container.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${product.product__name}</td>
+                    <td>${product.total_sold}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function updateRangeInfo(rangeCode) {
+        const rangeInfo = document.getElementById('range-info');
+        let rangeText = '';
+        
+        switch(rangeCode) {
+            case '1d':
+                rangeText = 'گزارش برای 1 روز گذشته';
+                break;
+            case '3d':
+                rangeText = 'گزارش برای 3 روز گذشته';
+                break;
+            case '1w':
+                rangeText = 'گزارش برای 1 هفته گذشته';
+                break;
+            case '1m':
+                rangeText = 'گزارش برای 1 ماه گذشته';
+                break;
+            case '3m':
+                rangeText = 'گزارش برای 3 ماه گذشته';
+                break;
+            default:
+                rangeText = 'گزارش برای تمام دوره';
+        }
+        
+        rangeInfo.textContent = rangeText;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // بارگذاری اولیه گزارش برای 1 هفته گذشته
+        document.getElementById('rangeSelect').value = '1w';
+        fetchReport();
+
+        const filterBtn = document.getElementById('filterBtn');
+        filterBtn.addEventListener('click', fetchReport);
+    });
+</script>
+
+<style>
+    #product-report {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: #fff;
+    }
+    
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        text-align: right;
+    }
+    
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    #range-info {
+        font-size: 0.9rem;
+        text-align: left;
+    }
+</style>
+{% endblock %}

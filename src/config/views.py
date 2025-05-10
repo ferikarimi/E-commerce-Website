@@ -36,6 +36,11 @@ def operator_panel(request):
     return render (request , 'panels/vendor_panel/operator_panel.html')
 def manager_panel(request):
     return render (request , 'panels/vendor_panel/manager_panel.html')
+
+def total_selling_product(request):
+    return render (request , 'report/best_products.html')
+def total_selles_report(request):
+    return render (request , 'report/total_income.html')
 #______________________________________________________________________________
 
 #_________________________________ registration _______________________________
