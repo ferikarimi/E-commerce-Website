@@ -113,6 +113,7 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
         serializer for employee 'manager' or 'operator' for vendor shop
     """
     username = serializers.CharField(source='user.username')
+    # phone = serializers.CharField(source='user.phone')
     role = serializers.ChoiceField(choices=[('manager', 'manager'), ('operator', 'operator')])
 
     class Meta :
@@ -123,6 +124,7 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
         user_data = validated_data.pop('user')
         username = user_data['username']
         role = validated_data.pop('role')
+        # phone = validated_data.pop('phone')
 
         try:
             user = User.objects.get(username=username)
@@ -136,10 +138,12 @@ class RegisterManagerSerializer (serializers.ModelSerializer):
         user.is_customer = False
         user.save()
         owner_vendor = self.context['request'].user.vendors
+        phone = user.phone 
         vendor = Vendors.objects.create(
             user=user ,
             role=role ,
             parent =owner_vendor ,
+            phone=phone,
             )
         return vendor
 

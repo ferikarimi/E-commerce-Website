@@ -77,16 +77,16 @@ class CheckUserType (APIView):
 
 
 # -------------------- otp with redis cache -------------------#
-def generate_otp (identifier , timeout=120):
+def generate_otp (email_or_phone , timeout=120):
     otp = str(random.randint(100000 , 999999))
-    cache.set(identifier ,otp,timeout=timeout)
+    cache.set(email_or_phone ,otp,timeout=timeout)
     return otp
 
-def get_otp (identifier):
-    return cache.get(identifier)
+def get_otp (email_or_phone):
+    return cache.get(email_or_phone)
 
-def delete_otp (identifier):
-    cache.delete(identifier)
+def delete_otp (email_or_phone):
+    cache.delete(email_or_phone)
 # ------------------------------------------------------------#
 
 class CustomLoginView(APIView):
@@ -102,19 +102,17 @@ class CustomLoginView(APIView):
 
         if email :
             try:
+                # otp = generate_otp(phone)
+                # print('------------ OTP code for email --------------')
+                # print(f'otp : {otp}')
+                # print('-----------------------------------------------')
                 otp = generate_otp(email)
-                print('------------ OTP code for email --------------')
-                print(f'otp : {otp}')
-                print('-----------------------------------------------')
-
-
-                # otp = generate_otp(email)
-                # send_mail(
-                #     subject='your OTP code',
-                #     message=f'your OPT code is : {otp}',
-                #     from_email='farzad3467@gmail.com',
-                #     recipient_list=[email],
-                # )
+                send_mail(
+                    subject='your OTP code',
+                    message=f'your OPT code is : {otp}',
+                    from_email= 'farzad3467@gmail.com',
+                    recipient_list=[email],
+                )
                 return Response ({'message':'OTP send successfully'}, status=200)
             except APIException as e :
                 return Response ({'error':str(e)}, status=400)
@@ -126,20 +124,17 @@ class CustomLoginView(APIView):
                 print(f'otp : {otp}')
                 print('-----------------------------------------------')
 
-            #     otp = generate_otp(phone)
-            #     api = KavenegarAPI('556D6F4E684E74342B74516F4F6A694372593338786D4B646A2F554A736D464C5648794535595173306F773D')
-            #     print('api')
+                # otp = generate_otp(phone)
+                # api = KavenegarAPI('556D6F4E684E74342B74516F4F6A694372593338786D4B646A2F554A736D464C5648794535595173306F773D')
+                # params = {
+                #     'sender': '20006535',
+                #     'receptor': '09305489152',
+                #     'message': f'کد تایید شما: {otp}',
+                # }
+                # print(params)
 
-            #     params = {
-            #         'sender': '20006535',
-            #         'receptor': '09305489152',
-            #         'message': f'کد تایید شما: {otp}',
-            #     }
-            #     print(params)
-            #     print('params')
-
-            #     api.sms_send(params)
-            #     print('sms_send')
+                # api.sms_send(params)
+                # print('sms_send')
 
                 return Response({'message':'OTP code send'},status=200)
             except APIException as e :
@@ -155,11 +150,11 @@ class VerifyOTPView(APIView):
         phone = request.data.get('phone')
         otp = request.data.get('otp')
 
-        identifier = email if email else phone
-        cached_otp = get_otp(identifier)
+        email_or_phone = email if email else phone
+        cached_otp = get_otp(email_or_phone)
 
         if cached_otp == otp:
-            delete_otp(identifier)
+            delete_otp(email_or_phone)
             user = get_object_or_404(User, email=email) if email else get_object_or_404(User, phone=phone)
             refresh = RefreshToken.for_user(user)
             return Response({

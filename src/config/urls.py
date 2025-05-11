@@ -21,7 +21,6 @@ urlpatterns = [
     path('manager_panel/', manager_panel, name='manager-panel'),
     path('operator_panel/', operator_panel, name='operator-panel'),
     path('manage_comments/', manage_comments, name='manage-comments'),
-
     path('total_selles_report/', total_selles_report, name='total_selles_report'),
     path('total_selling_product/', total_selling_product, name='total_selling_product'),
     #____________________________________________________________________________

@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 from datetime import timedelta
+from decouple import config
 
 
 
@@ -24,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG')
+DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -116,12 +116,12 @@ DATABASES = {
 #"""
 # DATABASES = {
 #     'default': {
-#         'ENGINE': os.environ.get('DB_ENGINE'),
-#         'NAME': os.environ.get('DB_NAME') , 
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST'),
-#         'PORT': os.environ.get('DB_PORT')
+#         'ENGINE': config('DB_ENGINE'),
+#         'NAME': config('DB_NAME') , 
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT')
 #     }
 # }
 
@@ -218,8 +218,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'farzad3467@gmail.com'
-EMAIL_HOST_PASSWORD = 'plkd ckvn zirt qosa'
-
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 
 CACHES = {

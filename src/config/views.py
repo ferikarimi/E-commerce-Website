@@ -6,7 +6,7 @@ from django.shortcuts import render
 def user_panel(request):
     return render(request,'panels/user_panel/user_panel.html')
 def user_comments (request):
-    return render (request , 'panels/user_panel/comments.html')
+    return render (request , 'panels/user_panel/reviews.html')
 def user_addresses (request):
     return render(request , 'panels/user_panel/user_address.html')
 def user_profile_page (request):
@@ -36,7 +36,6 @@ def operator_panel(request):
     return render (request , 'panels/vendor_panel/operator_panel.html')
 def manager_panel(request):
     return render (request , 'panels/vendor_panel/manager_panel.html')
-
 def total_selling_product(request):
     return render (request , 'report/best_products.html')
 def total_selles_report(request):
